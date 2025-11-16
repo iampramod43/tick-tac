@@ -128,6 +128,7 @@
   /* Colors - Surface */
   --color-surface-1: rgba(18, 24, 34, 0.86);
   --color-surface-2: rgba(24, 34, 48, 0.78);
+  --color-surface-solid: #182230;
   --color-glass-outline: rgba(255, 255, 255, 0.06);
 
   /* Colors - Accent */
@@ -153,7 +154,7 @@
   --color-foreground: var(--color-text-primary);
   --color-card: var(--color-surface-2);
   --color-card-foreground: var(--color-text-primary);
-  --color-popover: var(--color-surface-1);
+  --color-popover: var(--color-surface-solid);
   --color-popover-foreground: var(--color-text-primary);
   --color-primary: var(--color-accent-mint);
   --color-primary-foreground: var(--color-black);
@@ -188,6 +189,7 @@
   /* Colors - Surface (Light) */
   --color-surface-1: rgba(255, 255, 255, 0.9);
   --color-surface-2: rgba(248, 250, 252, 0.85);
+  --color-surface-solid: #ffffff;
   --color-glass-outline: rgba(0, 0, 0, 0.08);
 
   /* Colors - Accent (Light) */
@@ -211,7 +213,7 @@
   --color-foreground: var(--color-text-primary);
   --color-card: var(--color-surface-2);
   --color-card-foreground: var(--color-text-primary);
-  --color-popover: var(--color-surface-1);
+  --color-popover: var(--color-surface-solid);
   --color-popover-foreground: var(--color-text-primary);
   --color-primary: var(--color-accent-mint);
   --color-primary-foreground: var(--color-white);

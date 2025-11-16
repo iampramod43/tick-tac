@@ -1,40 +1,64 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Task, Subtask, RecurrencePattern, ReminderSettings, ReminderOffset } from '@/src/lib/types';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { DatePicker } from '@/src/components/common/DatePicker';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import {
+  Task,
+  Subtask,
+  RecurrencePattern,
+  ReminderSettings,
+  ReminderOffset,
+} from "@/src/lib/types";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/src/components/common/DatePicker";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { PRIORITY_LABELS } from '@/src/lib/constants';
-import { X, Plus, Trash2, FileText, ExternalLink, Repeat, Bell, Clock } from 'lucide-react';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import { parseISO } from 'date-fns';
-import { generateId, calculateNextOccurrence, formatRecurrence, formatUTCDate } from '@/src/lib/utils';
-import { useNotes } from '@/src/hooks/useNotes';
-import { useLists } from '@/src/hooks/useLists';
-import { useTaskTime } from '@/src/hooks/useTimeTracking';
-import { TaskTimer } from './TaskTimer';
+} from "@/components/ui/select";
+import { PRIORITY_LABELS } from "@/src/lib/constants";
+import {
+  X,
+  Plus,
+  Trash2,
+  FileText,
+  ExternalLink,
+  Repeat,
+  Bell,
+  Clock,
+  Sparkles,
+  Loader2,
+} from "lucide-react";
+import { useAuth } from "@clerk/nextjs";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { parseISO } from "date-fns";
+import {
+  generateId,
+  calculateNextOccurrence,
+  formatRecurrence,
+  formatUTCDate,
+} from "@/src/lib/utils";
+import { useNotes } from "@/src/hooks/useNotes";
+import { useLists } from "@/src/hooks/useLists";
+import { useTaskTime } from "@/src/hooks/useTimeTracking";
+import { TaskTimer } from "./TaskTimer";
 
 interface TaskEditorProps {
   task?: Task;
   listId: string;
-  onSave: (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  onSave: (task: Omit<Task, "id" | "createdAt" | "updatedAt">) => void;
   onCancel: () => void;
 }
 
 // Component to display total tracked time
 function TaskTotalTime({ taskId }: { taskId: string }) {
-  const { totalMinutes, totalHours, totalMinutesRemainder } = useTaskTime(taskId);
+  const { totalMinutes, totalHours, totalMinutesRemainder } =
+    useTaskTime(taskId);
 
   if (totalMinutes === 0) {
     return (
@@ -53,52 +77,66 @@ function TaskTotalTime({ taskId }: { taskId: string }) {
           <p className="text-sm font-medium">Total Tracked Time</p>
           <p className="text-xs text-muted-foreground">
             {totalHours > 0
-              ? `${totalHours} hour${totalHours !== 1 ? 's' : ''} ${totalMinutesRemainder} minute${totalMinutesRemainder !== 1 ? 's' : ''}`
-              : `${totalMinutes} minute${totalMinutes !== 1 ? 's' : ''}`}
+              ? `${totalHours} hour${
+                  totalHours !== 1 ? "s" : ""
+                } ${totalMinutesRemainder} minute${
+                  totalMinutesRemainder !== 1 ? "s" : ""
+                }`
+              : `${totalMinutes} minute${totalMinutes !== 1 ? "s" : ""}`}
           </p>
         </div>
       </div>
       <div className="text-2xl font-bold font-mono">
-        {totalHours > 0 ? `${totalHours}h ${totalMinutesRemainder}m` : `${totalMinutes}m`}
+        {totalHours > 0
+          ? `${totalHours}h ${totalMinutesRemainder}m`
+          : `${totalMinutes}m`}
       </div>
     </div>
   );
 }
 
-export function TaskEditor({ task, listId, onSave, onCancel }: TaskEditorProps) {
+export function TaskEditor({
+  task,
+  listId,
+  onSave,
+  onCancel,
+}: TaskEditorProps) {
   const router = useRouter();
   const { notes: allNotes } = useNotes();
   const { lists } = useLists();
-  const [selectedListId, setSelectedListId] = useState<string>(task?.listId || listId);
-  const [title, setTitle] = useState(task?.title || '');
-  const [notes, setNotes] = useState(task?.notes || '');
+  const [selectedListId, setSelectedListId] = useState<string>(
+    task?.listId || listId
+  );
+  const [title, setTitle] = useState(task?.title || "");
+  const [notes, setNotes] = useState(task?.notes || "");
   const [priority, setPriority] = useState<1 | 2 | 3 | 4>(task?.priority || 3);
   const [due, setDue] = useState<Date | undefined>(
     task?.due ? parseISO(task.due) : undefined
   );
-  const [dueTime, setDueTime] = useState<string>(
-    task?.dueTime || ''
-  );
+  const [dueTime, setDueTime] = useState<string>(task?.dueTime || "");
   const [done, setDone] = useState<boolean>(task?.done || false);
   const [tags, setTags] = useState<string[]>(task?.tags || []);
-  const [tagInput, setTagInput] = useState('');
+  const [tagInput, setTagInput] = useState("");
   const [subtasks, setSubtasks] = useState<Subtask[]>(task?.subtasks || []);
-  const [subtaskInput, setSubtaskInput] = useState('');
-  
+  const [subtaskInput, setSubtaskInput] = useState("");
+  const [isGeneratingDescription, setIsGeneratingDescription] = useState(false);
+
+  const { getToken } = useAuth();
+
   // Recurrence state
   const [hasRecurrence, setHasRecurrence] = useState(!!task?.recurrence);
-  const [recurrenceType, setRecurrenceType] = useState<RecurrencePattern['type']>(
-    task?.recurrence?.type || 'daily'
-  );
+  const [recurrenceType, setRecurrenceType] = useState<
+    RecurrencePattern["type"]
+  >(task?.recurrence?.type || "daily");
   const [recurrenceInterval, setRecurrenceInterval] = useState<number>(
     task?.recurrence?.interval || 1
   );
   const [recurrenceDaysOfWeek, setRecurrenceDaysOfWeek] = useState<number[]>(
     task?.recurrence?.daysOfWeek || []
   );
-  const [recurrenceDayOfMonth, setRecurrenceDayOfMonth] = useState<number | undefined>(
-    task?.recurrence?.dayOfMonth
-  );
+  const [recurrenceDayOfMonth, setRecurrenceDayOfMonth] = useState<
+    number | undefined
+  >(task?.recurrence?.dayOfMonth);
   const [recurrenceEndDate, setRecurrenceEndDate] = useState<Date | undefined>(
     task?.recurrence?.endDate ? parseISO(task.recurrence.endDate) : undefined
   );
@@ -113,9 +151,9 @@ export function TaskEditor({ task, listId, onSave, onCancel }: TaskEditorProps) 
   const [reminderOffsets, setReminderOffsets] = useState<ReminderOffset[]>(
     task?.reminderSettings?.offsets || []
   );
-  const [reminderCustomOffset, setReminderCustomOffset] = useState<number | undefined>(
-    task?.reminderSettings?.customOffset
-  );
+  const [reminderCustomOffset, setReminderCustomOffset] = useState<
+    number | undefined
+  >(task?.reminderSettings?.customOffset);
   const [reminderRecurring, setReminderRecurring] = useState(
     task?.reminderSettings?.recurring || false
   );
@@ -134,25 +172,25 @@ export function TaskEditor({ task, listId, onSave, onCancel }: TaskEditorProps) 
         type: recurrenceType,
         interval: recurrenceInterval > 0 ? recurrenceInterval : 1,
       };
-      
-      if (recurrenceType === 'weekly' && recurrenceDaysOfWeek.length > 0) {
+
+      if (recurrenceType === "weekly" && recurrenceDaysOfWeek.length > 0) {
         recurrence.daysOfWeek = recurrenceDaysOfWeek;
       }
-      
-      if (recurrenceType === 'monthly' && recurrenceDayOfMonth) {
+
+      if (recurrenceType === "monthly" && recurrenceDayOfMonth) {
         recurrence.dayOfMonth = recurrenceDayOfMonth;
       }
-      
+
       if (recurrenceEndDate) {
         recurrence.endDate = formatUTCDate(recurrenceEndDate);
       }
-      
+
       if (recurrenceCount && recurrenceCount > 0) {
         recurrence.count = recurrenceCount;
       }
     }
 
-    const taskData: Omit<Task, 'id' | 'createdAt' | 'updatedAt'> = {
+    const taskData: Omit<Task, "id" | "createdAt" | "updatedAt"> = {
       listId: selectedListId,
       title: title.trim(),
       notes: notes.trim(),
@@ -164,17 +202,19 @@ export function TaskEditor({ task, listId, onSave, onCancel }: TaskEditorProps) 
       done: done,
       recurrence: hasRecurrence ? recurrence : undefined,
       isRecurrenceTemplate: hasRecurrence ? true : undefined,
-      nextOccurrence: hasRecurrence && recurrence && due
-        ? formatUTCDate(calculateNextOccurrence(recurrence, due) || due)
-        : undefined,
-      reminderSettings: reminderEnabled && due
-        ? {
-            enabled: true,
-            offsets: reminderOffsets,
-            customOffset: reminderCustomOffset,
-            recurring: reminderRecurring,
-          }
-        : undefined,
+      nextOccurrence:
+        hasRecurrence && recurrence && due
+          ? formatUTCDate(calculateNextOccurrence(recurrence, due) || due)
+          : undefined,
+      reminderSettings:
+        reminderEnabled && due
+          ? {
+              enabled: true,
+              offsets: reminderOffsets,
+              customOffset: reminderCustomOffset,
+              recurring: reminderRecurring,
+            }
+          : undefined,
     };
 
     onSave(taskData);
@@ -190,16 +230,18 @@ export function TaskEditor({ task, listId, onSave, onCancel }: TaskEditorProps) 
 
   const toggleDayOfWeek = (day: number) => {
     if (recurrenceDaysOfWeek.includes(day)) {
-      setRecurrenceDaysOfWeek(recurrenceDaysOfWeek.filter(d => d !== day));
+      setRecurrenceDaysOfWeek(recurrenceDaysOfWeek.filter((d) => d !== day));
     } else {
-      setRecurrenceDaysOfWeek([...recurrenceDaysOfWeek, day].sort((a, b) => a - b));
+      setRecurrenceDaysOfWeek(
+        [...recurrenceDaysOfWeek, day].sort((a, b) => a - b)
+      );
     }
   };
 
   const handleAddTag = () => {
     if (tagInput.trim() && !tags.includes(tagInput.trim())) {
       setTags([...tags, tagInput.trim()]);
-      setTagInput('');
+      setTagInput("");
     }
   };
 
@@ -213,7 +255,7 @@ export function TaskEditor({ task, listId, onSave, onCancel }: TaskEditorProps) 
         ...subtasks,
         { id: generateId(), title: subtaskInput.trim(), done: false },
       ]);
-      setSubtaskInput('');
+      setSubtaskInput("");
     }
   };
 
@@ -225,6 +267,47 @@ export function TaskEditor({ task, listId, onSave, onCancel }: TaskEditorProps) 
 
   const handleRemoveSubtask = (id: string) => {
     setSubtasks(subtasks.filter((st) => st.id !== id));
+  };
+
+  const handleGenerateDescription = async () => {
+    if (!title.trim()) return;
+
+    setIsGeneratingDescription(true);
+    try {
+      const token = await getToken();
+      const API_URL =
+        process.env.NEXT_PUBLIC_API_URL ||
+        (process.env.NODE_ENV === "production"
+          ? "https://tick-tac-api.vercel.app"
+          : "http://localhost:3001");
+
+      const response = await fetch(`${API_URL}/api/tasks/ai/description`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ title: title.trim() }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to generate description");
+      }
+
+      const data = await response.json();
+      const description = data.description || "";
+
+      if (description) {
+        // Append description to existing notes, with a separator if notes already exist
+        const separator = notes.trim() ? "\n\n" : "";
+        setNotes(notes + separator + description);
+      }
+    } catch (error) {
+      console.error("Error generating description:", error);
+      // You could add a toast notification here
+    } finally {
+      setIsGeneratingDescription(false);
+    }
   };
 
   return (
@@ -240,21 +323,36 @@ export function TaskEditor({ task, listId, onSave, onCancel }: TaskEditorProps) 
       </div>
 
       <div>
-        <Textarea
-          placeholder="Notes"
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          className="min-h-[100px]"
-        />
+        <label className="text-sm font-medium mb-2 block">Description</label>
+        <div className="relative">
+          <Textarea
+            placeholder="Add notes or description..."
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            className="min-h-[100px] pr-10"
+          />
+          {title.trim() && (
+            <button
+              type="button"
+              onClick={handleGenerateDescription}
+              disabled={isGeneratingDescription}
+              className="absolute right-2 top-2 p-1.5 rounded-md hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Generate description with AI"
+            >
+              {isGeneratingDescription ? (
+                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+              ) : (
+                <span>✨</span>
+              )}
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="text-sm font-medium mb-2 block">List</label>
-          <Select
-            value={selectedListId}
-            onValueChange={setSelectedListId}
-          >
+          <Select value={selectedListId} onValueChange={setSelectedListId}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
@@ -273,7 +371,9 @@ export function TaskEditor({ task, listId, onSave, onCancel }: TaskEditorProps) 
           <label className="text-sm font-medium mb-2 block">Priority</label>
           <Select
             value={priority.toString()}
-            onValueChange={(value) => setPriority(parseInt(value) as 1 | 2 | 3 | 4)}
+            onValueChange={(value) =>
+              setPriority(parseInt(value) as 1 | 2 | 3 | 4)
+            }
           >
             <SelectTrigger>
               <SelectValue />
@@ -296,7 +396,9 @@ export function TaskEditor({ task, listId, onSave, onCancel }: TaskEditorProps) 
 
       {due && (
         <div>
-          <label className="text-sm font-medium mb-2 block">Due Time (optional)</label>
+          <label className="text-sm font-medium mb-2 block">
+            Due Time (optional)
+          </label>
           <Input
             type="time"
             value={dueTime}
@@ -309,7 +411,7 @@ export function TaskEditor({ task, listId, onSave, onCancel }: TaskEditorProps) 
               type="button"
               variant="ghost"
               size="sm"
-              onClick={() => setDueTime('')}
+              onClick={() => setDueTime("")}
               className="mt-2"
             >
               <X className="h-4 w-4 mr-1" />
@@ -325,7 +427,9 @@ export function TaskEditor({ task, listId, onSave, onCancel }: TaskEditorProps) 
           <div className="flex items-center gap-2 mb-3">
             <Checkbox
               checked={reminderEnabled}
-              onCheckedChange={(checked) => setReminderEnabled(checked === true)}
+              onCheckedChange={(checked) =>
+                setReminderEnabled(checked === true)
+              }
             />
             <Label className="text-sm font-medium flex items-center gap-2 cursor-pointer">
               <Bell className="h-4 w-4" />
@@ -338,45 +442,57 @@ export function TaskEditor({ task, listId, onSave, onCancel }: TaskEditorProps) 
               <div>
                 <Label className="text-sm mb-2 block">Remind me</Label>
                 <div className="flex flex-wrap gap-2">
-                  {(['15min', '30min', '1hour', '2hours', '1day'] as ReminderOffset[]).map(
-                    (offset) => (
-                      <Button
-                        key={offset}
-                        type="button"
-                        variant={reminderOffsets.includes(offset) ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => toggleReminderOffset(offset)}
-                        className="h-8"
-                      >
-                        {offset === '15min' && '15 min'}
-                        {offset === '30min' && '30 min'}
-                        {offset === '1hour' && '1 hour'}
-                        {offset === '2hours' && '2 hours'}
-                        {offset === '1day' && '1 day'}
-                      </Button>
-                    )
-                  )}
+                  {(
+                    [
+                      "15min",
+                      "30min",
+                      "1hour",
+                      "2hours",
+                      "1day",
+                    ] as ReminderOffset[]
+                  ).map((offset) => (
+                    <Button
+                      key={offset}
+                      type="button"
+                      variant={
+                        reminderOffsets.includes(offset) ? "default" : "outline"
+                      }
+                      size="sm"
+                      onClick={() => toggleReminderOffset(offset)}
+                      className="h-8"
+                    >
+                      {offset === "15min" && "15 min"}
+                      {offset === "30min" && "30 min"}
+                      {offset === "1hour" && "1 hour"}
+                      {offset === "2hours" && "2 hours"}
+                      {offset === "1day" && "1 day"}
+                    </Button>
+                  ))}
                 </div>
               </div>
 
               <div>
-                <Label className="text-sm mb-2 block">Custom reminder (optional)</Label>
+                <Label className="text-sm mb-2 block">
+                  Custom reminder (optional)
+                </Label>
                 <div className="flex gap-2">
                   <Input
                     type="number"
                     min="1"
                     placeholder="Minutes before"
-                    value={reminderCustomOffset || ''}
+                    value={reminderCustomOffset || ""}
                     onChange={(e) => {
                       const val = parseInt(e.target.value);
                       if (val > 0) {
                         setReminderCustomOffset(val);
-                        if (!reminderOffsets.includes('custom')) {
-                          setReminderOffsets([...reminderOffsets, 'custom']);
+                        if (!reminderOffsets.includes("custom")) {
+                          setReminderOffsets([...reminderOffsets, "custom"]);
                         }
                       } else {
                         setReminderCustomOffset(undefined);
-                        setReminderOffsets(reminderOffsets.filter((o) => o !== 'custom'));
+                        setReminderOffsets(
+                          reminderOffsets.filter((o) => o !== "custom")
+                        );
                       }
                     }}
                   />
@@ -387,7 +503,9 @@ export function TaskEditor({ task, listId, onSave, onCancel }: TaskEditorProps) 
                       size="sm"
                       onClick={() => {
                         setReminderCustomOffset(undefined);
-                        setReminderOffsets(reminderOffsets.filter((o) => o !== 'custom'));
+                        setReminderOffsets(
+                          reminderOffsets.filter((o) => o !== "custom")
+                        );
                       }}
                     >
                       <X className="h-4 w-4" />
@@ -400,7 +518,9 @@ export function TaskEditor({ task, listId, onSave, onCancel }: TaskEditorProps) 
                 <div className="flex items-center gap-2">
                   <Checkbox
                     checked={reminderRecurring}
-                    onCheckedChange={(checked) => setReminderRecurring(checked === true)}
+                    onCheckedChange={(checked) =>
+                      setReminderRecurring(checked === true)
+                    }
                   />
                   <Label className="text-sm cursor-pointer">
                     Recurring reminders (for recurring tasks)
@@ -410,10 +530,10 @@ export function TaskEditor({ task, listId, onSave, onCancel }: TaskEditorProps) 
 
               {reminderOffsets.length > 0 && (
                 <div className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
-                  <strong>Reminders set:</strong>{' '}
+                  <strong>Reminders set:</strong>{" "}
                   {reminderOffsets
                     .map((offset) => {
-                      if (offset === 'custom' && reminderCustomOffset) {
+                      if (offset === "custom" && reminderCustomOffset) {
                         const hours = Math.floor(reminderCustomOffset / 60);
                         const mins = reminderCustomOffset % 60;
                         if (hours > 0 && mins > 0) {
@@ -424,20 +544,20 @@ export function TaskEditor({ task, listId, onSave, onCancel }: TaskEditorProps) 
                           return `${mins}m before`;
                         }
                       }
-                      return offset === '15min'
-                        ? '15 min before'
-                        : offset === '30min'
-                        ? '30 min before'
-                        : offset === '1hour'
-                        ? '1 hour before'
-                        : offset === '2hours'
-                        ? '2 hours before'
-                        : offset === '1day'
-                        ? '1 day before'
-                        : '';
+                      return offset === "15min"
+                        ? "15 min before"
+                        : offset === "30min"
+                        ? "30 min before"
+                        : offset === "1hour"
+                        ? "1 hour before"
+                        : offset === "2hours"
+                        ? "2 hours before"
+                        : offset === "1day"
+                        ? "1 day before"
+                        : "";
                     })
                     .filter(Boolean)
-                    .join(', ')}
+                    .join(", ")}
                 </div>
               )}
             </div>
@@ -453,7 +573,7 @@ export function TaskEditor({ task, listId, onSave, onCancel }: TaskEditorProps) 
             value={tagInput}
             onChange={(e) => setTagInput(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter') {
+              if (e.key === "Enter") {
                 e.preventDefault();
                 handleAddTag();
               }
@@ -488,7 +608,7 @@ export function TaskEditor({ task, listId, onSave, onCancel }: TaskEditorProps) 
             value={subtaskInput}
             onChange={(e) => setSubtaskInput(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter') {
+              if (e.key === "Enter") {
                 e.preventDefault();
                 handleAddSubtask();
               }
@@ -508,7 +628,7 @@ export function TaskEditor({ task, listId, onSave, onCancel }: TaskEditorProps) 
                 />
                 <span
                   className={`flex-1 text-sm ${
-                    subtask.done ? 'line-through text-muted-foreground' : ''
+                    subtask.done ? "line-through text-muted-foreground" : ""
                   }`}
                 >
                   {subtask.title}
@@ -532,9 +652,13 @@ export function TaskEditor({ task, listId, onSave, onCancel }: TaskEditorProps) 
         <div className="border-t pt-4 space-y-4">
           {/* Total Tracked Time */}
           <TaskTotalTime taskId={task.id} />
-          
+
           {/* Timer */}
-          <TaskTimer taskId={task.id} taskTitle={task.title} listId={task.listId} />
+          <TaskTimer
+            taskId={task.id}
+            taskTitle={task.title}
+            listId={task.listId}
+          />
         </div>
       )}
 
@@ -558,7 +682,9 @@ export function TaskEditor({ task, listId, onSave, onCancel }: TaskEditorProps) 
                 <Label className="text-sm mb-2 block">Repeat</Label>
                 <Select
                   value={recurrenceType}
-                  onValueChange={(value) => setRecurrenceType(value as RecurrencePattern['type'])}
+                  onValueChange={(value) =>
+                    setRecurrenceType(value as RecurrencePattern["type"])
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -573,47 +699,57 @@ export function TaskEditor({ task, listId, onSave, onCancel }: TaskEditorProps) 
                 </Select>
               </div>
 
-              {recurrenceType !== 'weekly' && (
+              {recurrenceType !== "weekly" && (
                 <div>
                   <Label className="text-sm mb-2 block">Interval</Label>
                   <Input
                     type="number"
                     min="1"
                     value={recurrenceInterval}
-                    onChange={(e) => setRecurrenceInterval(Math.max(1, parseInt(e.target.value) || 1))}
+                    onChange={(e) =>
+                      setRecurrenceInterval(
+                        Math.max(1, parseInt(e.target.value) || 1)
+                      )
+                    }
                   />
                 </div>
               )}
             </div>
 
-            {recurrenceType === 'weekly' && (
+            {recurrenceType === "weekly" && (
               <div>
                 <Label className="text-sm mb-2 block">Days of week</Label>
                 <div className="flex flex-wrap gap-2">
-                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, index) => (
-                    <Button
-                      key={day}
-                      type="button"
-                      variant={recurrenceDaysOfWeek.includes(index) ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => toggleDayOfWeek(index)}
-                      className="h-8"
-                    >
-                      {day}
-                    </Button>
-                  ))}
+                  {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(
+                    (day, index) => (
+                      <Button
+                        key={day}
+                        type="button"
+                        variant={
+                          recurrenceDaysOfWeek.includes(index)
+                            ? "default"
+                            : "outline"
+                        }
+                        size="sm"
+                        onClick={() => toggleDayOfWeek(index)}
+                        className="h-8"
+                      >
+                        {day}
+                      </Button>
+                    )
+                  )}
                 </div>
               </div>
             )}
 
-            {recurrenceType === 'monthly' && (
+            {recurrenceType === "monthly" && (
               <div>
                 <Label className="text-sm mb-2 block">Day of month</Label>
                 <Input
                   type="number"
                   min="1"
                   max="31"
-                  value={recurrenceDayOfMonth || ''}
+                  value={recurrenceDayOfMonth || ""}
                   onChange={(e) => {
                     const val = parseInt(e.target.value);
                     if (val >= 1 && val <= 31) {
@@ -627,7 +763,9 @@ export function TaskEditor({ task, listId, onSave, onCancel }: TaskEditorProps) 
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label className="text-sm mb-2 block">End date (optional)</Label>
+                <Label className="text-sm mb-2 block">
+                  End date (optional)
+                </Label>
                 <DatePicker
                   date={recurrenceEndDate}
                   onSelect={setRecurrenceEndDate}
@@ -636,11 +774,13 @@ export function TaskEditor({ task, listId, onSave, onCancel }: TaskEditorProps) 
               </div>
 
               <div>
-                <Label className="text-sm mb-2 block">Repeat count (optional)</Label>
+                <Label className="text-sm mb-2 block">
+                  Repeat count (optional)
+                </Label>
                 <Input
                   type="number"
                   min="1"
-                  value={recurrenceCount || ''}
+                  value={recurrenceCount || ""}
                   onChange={(e) => {
                     const val = parseInt(e.target.value);
                     if (val > 0) {
@@ -656,14 +796,20 @@ export function TaskEditor({ task, listId, onSave, onCancel }: TaskEditorProps) 
 
             {hasRecurrence && (
               <div className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
-                <strong>Preview:</strong>{' '}
+                <strong>Preview:</strong>{" "}
                 {recurrenceType && (
                   <span>
                     {formatRecurrence({
                       type: recurrenceType,
                       interval: recurrenceInterval,
-                      daysOfWeek: recurrenceType === 'weekly' ? recurrenceDaysOfWeek : undefined,
-                      dayOfMonth: recurrenceType === 'monthly' ? recurrenceDayOfMonth : undefined,
+                      daysOfWeek:
+                        recurrenceType === "weekly"
+                          ? recurrenceDaysOfWeek
+                          : undefined,
+                      dayOfMonth:
+                        recurrenceType === "monthly"
+                          ? recurrenceDayOfMonth
+                          : undefined,
                     })}
                   </span>
                 )}
@@ -701,8 +847,8 @@ export function TaskEditor({ task, listId, onSave, onCancel }: TaskEditorProps) 
                       )}
                     </div>
                     <p className="text-xs text-muted-foreground line-clamp-2">
-                      {note.content.replace(/[#*`\[\]]/g, '').slice(0, 100)}
-                      {note.content.length > 100 ? '...' : ''}
+                      {note.content.replace(/[#*`\[\]]/g, "").slice(0, 100)}
+                      {note.content.length > 100 ? "..." : ""}
                     </p>
                     {note.tags && note.tags.length > 0 && (
                       <div className="flex flex-wrap gap-1 mt-1">
@@ -738,7 +884,10 @@ export function TaskEditor({ task, listId, onSave, onCancel }: TaskEditorProps) 
             }}
             id="task-complete"
           />
-          <Label htmlFor="task-complete" className="text-sm font-medium cursor-pointer">
+          <Label
+            htmlFor="task-complete"
+            className="text-sm font-medium cursor-pointer"
+          >
             {done ? "Mark as incomplete" : "Mark as complete"}
           </Label>
         </div>
@@ -754,4 +903,3 @@ export function TaskEditor({ task, listId, onSave, onCancel }: TaskEditorProps) 
     </div>
   );
 }
-
