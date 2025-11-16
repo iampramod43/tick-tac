@@ -57,9 +57,10 @@ export default function FlowPage() {
       <div className="flex h-screen overflow-hidden">
         <Sidebar
           lists={lists}
+          activeListId="flow"
+          onListSelect={() => {}}
+          onNewList={() => {}}
           taskCounts={taskCounts}
-          activeView="flow"
-          onViewChange={() => {}}
         />
         <div className="flex-1 overflow-y-auto bg-slate-950">
           <div className="max-w-4xl mx-auto p-8">
@@ -119,9 +120,10 @@ export default function FlowPage() {
     <div className="flex h-screen overflow-hidden">
       <Sidebar
         lists={lists}
+        activeListId="flow"
+        onListSelect={() => {}}
+        onNewList={() => {}}
         taskCounts={taskCounts}
-        activeView="flow"
-        onViewChange={() => {}}
       />
       <div className="flex-1 overflow-y-auto bg-slate-950">
         <div className="max-w-6xl mx-auto p-8">

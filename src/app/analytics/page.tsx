@@ -31,9 +31,15 @@ import {
   Award,
   Zap,
 } from "lucide-react";
-import { format, subDays, startOfWeek, endOfWeek, eachDayOfInterval } from "date-fns";
-import { cn } from "@/src/lib/utils";
+import {
+  format,
+  subDays,
+  startOfWeek,
+  endOfWeek,
+  eachDayOfInterval,
+} from "date-fns";
 import { TikkuChat } from "@/src/components/ai/TikkuChat";
+import { LucideIcon } from "lucide-react";
 
 const COLORS = {
   primary: "#007AFF",
@@ -51,6 +57,36 @@ const PRIORITY_COLORS = {
   4: "#8E8E93", // Low
 };
 
+interface StatCardProps {
+  title: string;
+  value: string | number;
+  icon: LucideIcon;
+  trend?: string;
+  color?: keyof typeof COLORS;
+}
+
+const StatCard = ({
+  title,
+  value,
+  icon: Icon,
+  trend,
+  color = "primary",
+}: StatCardProps) => (
+  <div className="bg-card border rounded-lg p-6">
+    <div className="flex items-center justify-between mb-2">
+      <div
+        className="p-2 rounded-lg"
+        style={{ backgroundColor: `${COLORS[color]}20` }}
+      >
+        <Icon className="h-5 w-5" style={{ color: COLORS[color] }} />
+      </div>
+      {trend && <span className="text-xs text-muted-foreground">{trend}</span>}
+    </div>
+    <h3 className="text-2xl font-bold mb-1">{value}</h3>
+    <p className="text-sm text-muted-foreground">{title}</p>
+  </div>
+);
+
 export default function AnalyticsPage() {
   const { lists } = useLists();
   const { tasks } = useTasks();
@@ -66,24 +102,18 @@ export default function AnalyticsPage() {
       totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
     // Tasks by priority
-    const tasksByPriority = tasks.reduce(
-      (acc, task) => {
-        acc[task.priority] = (acc[task.priority] || 0) + 1;
-        return acc;
-      },
-      {} as Record<number, number>
-    );
+    const tasksByPriority = tasks.reduce((acc, task) => {
+      acc[task.priority] = (acc[task.priority] || 0) + 1;
+      return acc;
+    }, {} as Record<number, number>);
 
     // Tasks by list
-    const tasksByList = tasks.reduce(
-      (acc, task) => {
-        const list = lists.find((l) => l.id === task.listId);
-        const listName = list?.title || task.listId;
-        acc[listName] = (acc[listName] || 0) + 1;
-        return acc;
-      },
-      {} as Record<string, number>
-    );
+    const tasksByList = tasks.reduce((acc, task) => {
+      const list = lists.find((l) => l.id === task.listId);
+      const listName = list?.title || task.listId;
+      acc[listName] = (acc[listName] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
 
     // Overdue tasks
     const today = new Date();
@@ -125,14 +155,11 @@ export default function AnalyticsPage() {
     // Notes statistics
     const totalNotes = notes.length;
     const pinnedNotes = notes.filter((n) => n.pinned).length;
-    const notesByCategory = notes.reduce(
-      (acc, note) => {
-        const category = note.category || "Uncategorized";
-        acc[category] = (acc[category] || 0) + 1;
-        return acc;
-      },
-      {} as Record<string, number>
-    );
+    const notesByCategory = notes.reduce((acc, note) => {
+      const category = note.category || "Uncategorized";
+      acc[category] = (acc[category] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
 
     // Notes with task attachments
     const notesWithTasks = notes.filter((n) => n.linkedTaskId).length;
@@ -162,12 +189,13 @@ export default function AnalyticsPage() {
     });
 
     // Additional insights
-    const avgTasksPerDay = last7Days.length > 0
-      ? Math.round(
-          tasksCompletedByDay.reduce((sum, day) => sum + day.completed, 0) /
-            last7Days.length
-        )
-      : 0;
+    const avgTasksPerDay =
+      last7Days.length > 0
+        ? Math.round(
+            tasksCompletedByDay.reduce((sum, day) => sum + day.completed, 0) /
+              last7Days.length
+          )
+        : 0;
 
     const mostProductiveDay = tasksCompletedByDay.reduce(
       (max, day) => (day.completed > max.completed ? day : max),
@@ -183,8 +211,7 @@ export default function AnalyticsPage() {
       0
     );
     const completedSubtasks = tasks.reduce(
-      (sum, t) =>
-        sum + (t.subtasks?.filter((st) => st.done).length || 0),
+      (sum, t) => sum + (t.subtasks?.filter((st) => st.done).length || 0),
       0
     );
 
@@ -213,50 +240,32 @@ export default function AnalyticsPage() {
   }, [tasks, lists, notes, journalEntries]);
 
   // Prepare chart data
-  const priorityData = Object.entries(stats.tasksByPriority).map(([priority, count]) => ({
-    name: priority === "1" ? "Urgent" : priority === "2" ? "High" : priority === "3" ? "Normal" : "Low",
-    value: count,
-    color: PRIORITY_COLORS[parseInt(priority) as keyof typeof PRIORITY_COLORS],
-  }));
+  const priorityData = Object.entries(stats.tasksByPriority).map(
+    ([priority, count]) => ({
+      name:
+        priority === "1"
+          ? "Urgent"
+          : priority === "2"
+          ? "High"
+          : priority === "3"
+          ? "Normal"
+          : "Low",
+      value: count,
+      color:
+        PRIORITY_COLORS[parseInt(priority) as keyof typeof PRIORITY_COLORS],
+    })
+  );
 
   const listData = Object.entries(stats.tasksByList)
     .map(([name, count]) => ({ name, value: count }))
     .sort((a, b) => b.value - a.value)
     .slice(0, 5);
 
-  const categoryData = Object.entries(stats.notesByCategory).map(([name, count]) => ({
-    name,
-    value: count,
-  }));
-
-  const StatCard = ({
-    title,
-    value,
-    icon: Icon,
-    trend,
-    color = "primary",
-  }: {
-    title: string;
-    value: string | number;
-    icon: any;
-    trend?: string;
-    color?: keyof typeof COLORS;
-  }) => (
-    <div className="bg-card border rounded-lg p-6">
-      <div className="flex items-center justify-between mb-2">
-        <div
-          className="p-2 rounded-lg"
-          style={{ backgroundColor: `${COLORS[color]}20` }}
-        >
-          <Icon className="h-5 w-5" style={{ color: COLORS[color] }} />
-        </div>
-        {trend && (
-          <span className="text-xs text-muted-foreground">{trend}</span>
-        )}
-      </div>
-      <h3 className="text-2xl font-bold mb-1">{value}</h3>
-      <p className="text-sm text-muted-foreground">{title}</p>
-    </div>
+  const categoryData = Object.entries(stats.notesByCategory).map(
+    ([name, count]) => ({
+      name,
+      value: count,
+    })
   );
 
   return (
@@ -432,7 +441,7 @@ export default function AnalyticsPage() {
                     cy="50%"
                     labelLine={false}
                     label={({ name, percent }) =>
-                      `${name}: ${(percent * 100).toFixed(0)}%`
+                      `${name}: ${((percent ?? 0) * 100).toFixed(0)}%`
                     }
                     outerRadius={80}
                     fill="#8884d8"
@@ -449,7 +458,9 @@ export default function AnalyticsPage() {
 
             {/* Tasks by List */}
             <div className="bg-card border rounded-lg p-6">
-              <h3 className="text-lg font-semibold mb-4">Top Lists by Task Count</h3>
+              <h3 className="text-lg font-semibold mb-4">
+                Top Lists by Task Count
+              </h3>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={listData} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" />
@@ -464,7 +475,9 @@ export default function AnalyticsPage() {
 
           {/* Weekly Completion Trend */}
           <div className="bg-card border rounded-lg p-6 mb-6">
-            <h3 className="text-lg font-semibold mb-4">This Week's Completion Trend</h3>
+            <h3 className="text-lg font-semibold mb-4">
+              This Week&apos;s Completion Trend
+            </h3>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={stats.weeklyCompletion}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -472,7 +485,11 @@ export default function AnalyticsPage() {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="completed" fill={COLORS.success} name="Completed Tasks" />
+                <Bar
+                  dataKey="completed"
+                  fill={COLORS.success}
+                  name="Completed Tasks"
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -481,7 +498,9 @@ export default function AnalyticsPage() {
           {categoryData.length > 0 && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="bg-card border rounded-lg p-6">
-                <h3 className="text-lg font-semibold mb-4">Notes by Category</h3>
+                <h3 className="text-lg font-semibold mb-4">
+                  Notes by Category
+                </h3>
                 <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
                     <Pie
@@ -490,7 +509,7 @@ export default function AnalyticsPage() {
                       cy="50%"
                       labelLine={false}
                       label={({ name, percent }) =>
-                        `${name}: ${(percent * 100).toFixed(0)}%`
+                        `${name}: ${((percent ?? 0) * 100).toFixed(0)}%`
                       }
                       outerRadius={80}
                       fill="#8884d8"
@@ -499,7 +518,11 @@ export default function AnalyticsPage() {
                       {categoryData.map((entry, index) => (
                         <Cell
                           key={`cell-${index}`}
-                          fill={Object.values(COLORS)[index % Object.values(COLORS).length]}
+                          fill={
+                            Object.values(COLORS)[
+                              index % Object.values(COLORS).length
+                            ]
+                          }
                         />
                       ))}
                     </Pie>
@@ -513,19 +536,29 @@ export default function AnalyticsPage() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                     <span className="text-sm font-medium">Total Notes</span>
-                    <span className="text-lg font-bold">{stats.totalNotes}</span>
+                    <span className="text-lg font-bold">
+                      {stats.totalNotes}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                     <span className="text-sm font-medium">Pinned Notes</span>
-                    <span className="text-lg font-bold">{stats.pinnedNotes}</span>
+                    <span className="text-lg font-bold">
+                      {stats.pinnedNotes}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                    <span className="text-sm font-medium">Notes with Tasks</span>
-                    <span className="text-lg font-bold">{stats.notesWithTasks}</span>
+                    <span className="text-sm font-medium">
+                      Notes with Tasks
+                    </span>
+                    <span className="text-lg font-bold">
+                      {stats.notesWithTasks}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                     <span className="text-sm font-medium">Journal Entries</span>
-                    <span className="text-lg font-bold">{stats.totalJournalEntries}</span>
+                    <span className="text-lg font-bold">
+                      {stats.totalJournalEntries}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -538,4 +571,3 @@ export default function AnalyticsPage() {
     </div>
   );
 }
-

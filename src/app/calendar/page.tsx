@@ -28,7 +28,7 @@ export default function CalendarPage() {
   const { sessions: pomodoroSessions } = usePomodoro();
   const { countdowns } = useCountdowns();
   const { notes } = useNotes();
-  const { entries: timeEntries } = useTimeTracking();
+  const { timeEntries } = useTimeTracking();
   const activeListId = 'calendar';
   const [isNewListModalOpen, setIsNewListModalOpen] = useState(false);
 

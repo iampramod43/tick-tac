@@ -40,7 +40,6 @@ export const clerkAppearance = {
     
     // Links - mint green accent
     footerActionLink: "text-[var(--color-accent-mint)] hover:text-[var(--color-accent-teal)] transition-colors",
-    identityPreviewEditButton: "text-[var(--color-accent-mint)] hover:text-[var(--color-accent-teal)]",
     formFieldAction: "text-[var(--color-accent-mint)] hover:text-[var(--color-accent-teal)]",
     
     // Footer
@@ -58,7 +57,7 @@ export const clerkAppearance = {
     // Identity preview
     identityPreview: "bg-[rgba(255,255,255,0.02)] border border-[var(--color-glass-outline)] rounded-[var(--radius-md)]",
     identityPreviewText: "text-[var(--color-text-primary)]",
-    identityPreviewEditButton: "text-[var(--color-accent-mint)]",
+    identityPreviewEditButton: "text-[var(--color-accent-mint)] hover:text-[var(--color-accent-teal)] transition-colors",
     
     // OTP input
     otpCodeFieldInput:
@@ -99,7 +98,6 @@ export const clerkAppearance = {
     
     // Alert
     alert: "bg-[rgba(255,255,255,0.02)] border border-[var(--color-glass-outline)] rounded-[var(--radius-md)]",
-    alertText: "text-[var(--color-text-primary)]",
     
     // Badge
     badge: "bg-[rgba(94,247,166,0.1)] text-[var(--color-accent-mint)] border border-[var(--color-accent-mint)]/20 rounded-[var(--radius-sm)]",
@@ -149,7 +147,9 @@ export const clerkAppearance = {
     borderRadius: "12px",
     fontFamily: "var(--font-primary)",
     fontSize: "14px",
-    fontWeight: "400",
+    fontWeight: {
+      normal: 400,
+    },
     // Social button specific colors
     colorSocialButtonText: "#E6EEF8",
     colorSocialButtonIcon: "#E6EEF8",
