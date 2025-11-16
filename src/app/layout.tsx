@@ -6,8 +6,8 @@ import { QueryProvider } from "@/src/components/providers/QueryProvider";
 import { FlowModeProvider } from "@/src/context/FlowModeContext";
 
 export const metadata: Metadata = {
-  title: "tickTac - Task Manager",
-  description: "A modern task management application built with Next.js",
+  title: "TickTac - AI-Powered Productivity Hub",
+  description: "Your intelligent task management and productivity companion. Organize tasks, track habits, manage time, and boost productivity with AI assistance.",
 };
 
 export default function RootLayout({

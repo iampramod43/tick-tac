@@ -305,21 +305,23 @@ export function MainLayout({ initialView = "inbox" }: MainLayoutProps) {
       />
 
       <Dialog open={isNewTaskModalOpen} onOpenChange={setIsNewTaskModalOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
+        <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col p-0">
+          <DialogHeader className="px-6 pt-6 pb-4 shrink-0">
             <DialogTitle>Create New Task</DialogTitle>
           </DialogHeader>
-          <TaskEditor
-            listId={
-              activeListId === "today" ||
-              activeListId === "upcoming" ||
-              activeListId === "completed"
-                ? "inbox"
-                : activeListId
-            }
-            onSave={handleNewTaskSave}
-            onCancel={() => setIsNewTaskModalOpen(false)}
-          />
+          <div className="overflow-y-auto px-6 pb-6">
+            <TaskEditor
+              listId={
+                activeListId === "today" ||
+                activeListId === "upcoming" ||
+                activeListId === "completed"
+                  ? "inbox"
+                  : activeListId
+              }
+              onSave={handleNewTaskSave}
+              onCancel={() => setIsNewTaskModalOpen(false)}
+            />
+          </div>
         </DialogContent>
       </Dialog>
 

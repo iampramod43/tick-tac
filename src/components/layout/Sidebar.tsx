@@ -9,8 +9,7 @@ import { Button } from "@/components/ui/button";
 import { UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
 import Link from "next/link";
 import { cn } from "@/src/lib/utils";
-import Image from "next/image";
-import { useTheme } from "next-themes";
+import { Logo } from "@/src/components/branding/Logo";
 
 interface SidebarProps {
   lists: List[];
@@ -27,10 +26,6 @@ export function Sidebar({
   onNewList,
   taskCounts,
 }: SidebarProps) {
-  const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  const isDarkMode = resolvedTheme === "dark";
-
   // Initialize state from localStorage using lazy initializer
   const [isCollapsed, setIsCollapsed] = useState(() => {
     if (typeof window !== "undefined") {
@@ -39,11 +34,6 @@ export function Sidebar({
     }
     return false;
   });
-
-  // Handle theme mounting
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // Save collapsed state to localStorage
   useEffect(() => {
@@ -63,15 +53,8 @@ export function Sidebar({
     >
       <div className="p-4 border-b border-[var(--color-glass-outline)] flex items-center justify-between">
         {!isCollapsed && (
-          <Link href="/" className="block">
-            <div className="cursor-pointer hover:opacity-80 transition-opacity">
-              <Image
-                src={mounted && isDarkMode ? "/DB.svg" : "/WB.svg"}
-                alt="tickTac"
-                width={48}
-                height={48}
-              />
-            </div>
+          <Link href="/" className="block hover:opacity-80 transition-opacity">
+            <Logo size="lg" animated={true} showText={false} />
           </Link>
         )}
         <Button
