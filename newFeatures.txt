@@ -1,0 +1,165 @@
+Here are feature ideas that would complement the current suite:
+
+## High-value additions
+
+### 1. Notes & Journaling
+- Rich text notes with markdown support
+- Daily journal entries
+- Link notes to tasks/habits
+- Search across notes
+- Tags and categories
+- Route: `/notes`
+
+### 2. Reminders & Notifications
+- Browser notifications for due tasks
+- Reminder scheduling (15 min, 1 hour, 1 day before)
+- Recurring reminders
+- Notification preferences
+- Desktop notifications integration
+
+### 3. Recurring Tasks
+- Daily, weekly, monthly patterns
+- Custom recurrence rules
+- Auto-create instances
+- Completion tracking per instance
+- Route: Add to existing task editor
+
+### 4. Time Tracking
+- Manual time logs
+- Link to tasks/projects
+- Daily/weekly reports
+- Export time data
+- Route: `/time-tracking`
+
+### 5. Goals & Projects
+- Long-term goals with milestones
+- Project breakdown
+- Progress tracking
+- Deadline management
+- Route: `/goals`
+
+### 6. Tags System Enhancement
+- Tag management page
+- Tag colors and icons
+- Filter by multiple tags
+- Tag-based views
+- Route: `/tags`
+
+### 7. Statistics & Analytics Dashboard
+- Task completion rates
+- Habit streak analytics
+- Time spent per category
+- Productivity trends
+- Weekly/monthly reports
+- Route: `/analytics`
+
+### 8. Focus Mode / Distraction-Free
+- Minimal UI mode
+- Hide sidebar
+- Single task focus
+- Full-screen timer integration
+- Route: `/focus`
+
+### 9. Templates
+- Task templates
+- Habit templates
+- Project templates
+- Quick-start workflows
+- Route: `/templates`
+
+### 10. Export & Import
+- Export to JSON/CSV
+- Import from other apps
+- Backup/restore
+- Data portability
+
+### 11. Kanban Board View
+- Drag-and-drop columns
+- Custom columns
+- Task cards
+- Visual workflow
+- Route: `/kanban`
+
+### 12. Quick Capture
+- Floating action button
+- Quick task entry
+- Voice notes (future)
+- Mobile-optimized input
+- Route: Add to all pages
+
+### 13. Collaboration Features
+- Share lists/projects
+- Comments on tasks
+- Assign tasks
+- Activity feed
+- Route: `/collaborate`
+
+### 14. Smart Suggestions
+- AI-powered task prioritization
+- Habit suggestions
+- Time estimates
+- Deadline recommendations
+
+### 15. Widgets & Dashboard
+- Customizable dashboard
+- Widget system
+- Drag-and-drop layout
+- Quick stats widgets
+- Route: `/dashboard`
+
+## Quick wins (easy to add)
+
+### 16. Keyboard Shortcuts Page
+- List all shortcuts
+- Customizable shortcuts
+- Help overlay (press `?`)
+- Route: `/shortcuts`
+
+### 17. Task Dependencies
+- Link related tasks
+- Show blockers
+- Dependency visualization
+- Route: Add to task detail
+
+### 18. Attachments
+- File uploads
+- Image attachments
+- Link attachments
+- Route: Add to task editor
+
+### 19. Subtasks Enhancement
+- Nested subtasks
+- Subtask progress bars
+- Subtask due dates
+- Route: Enhance existing
+
+### 20. Dark Mode Variants
+- Multiple dark themes
+- Custom color schemes
+- Accent color picker
+- Route: Settings
+
+## Most impactful recommendations
+
+1. Statistics & Analytics Dashboard — visualize productivity
+2. Recurring Tasks — reduce repetitive setup
+3. Notes & Journaling — centralize information
+4. Reminders & Notifications — improve follow-through
+5. Kanban Board View — visual workflow management
+
+## Implementation priority
+
+Phase 1 (Quick wins):
+- Recurring Tasks
+- Reminders & Notifications
+- Statistics Dashboard
+
+Phase 2 (Medium effort):
+- Notes & Journaling
+- Kanban Board
+- Time Tracking
+
+Phase 3 (Advanced):
+- Collaboration
+- Smart Suggestions
+- Export/Import

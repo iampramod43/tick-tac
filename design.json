@@ -1,0 +1,266 @@
+{
+  "meta": {
+    "name": "Aurora Dashboard - Design System",
+    "version": "1.0",
+    "author": "creative-director-ai",
+    "source_image": "/mnt/data/original-536a62db2423508c4fd36f94e038bbe2.webp",
+    "description": "High-level design guidelines and component tokens to replicate the dark, glassy, neon-accent dashboard aesthetic shown in the provided screenshots. Intended to instruct an AI or engineering team to reproduce the look consistently."
+  },
+
+  "designPrinciples": [
+    "Depth through soft layered shadows and subtle inner-glow — create a tactile surface hierarchy.",
+    "Dark, desaturated base with vibrant accents — let color accents carry emphasis and affordance.",
+    "Glassmorphism + neumorphism hybrid — translucent surfaces, blurred backplates with clear outlines.",
+    "Micro-contrast for content separation — use thin borders and subtle gradients instead of hard separations.",
+    "Readable typography at all sizes — large expressive display; compact body text with high legibility.",
+    "System-first tokens — everything driven by named tokens (colors, spacing, radii, elevations)."
+  ],
+
+  "tokens": {
+    "spacing": {
+      "xs": 4,
+      "sm": 8,
+      "md": 16,
+      "lg": 24,
+      "xl": 32,
+      "xxl": 48
+    },
+
+    "radius": {
+      "sm": 6,
+      "md": 12,
+      "lg": 20,
+      "pill": 9999
+    },
+
+    "elevation": {
+      "level-1": "0 1px 2px rgba(0,0,0,0.35)",
+      "level-2": "0 8px 24px rgba(7,10,18,0.55)",
+      "level-3": "inset 0 1px 0 rgba(255,255,255,0.02), 0 24px 60px rgba(6,8,12,0.65)"
+    },
+
+    "blur": {
+      "glass-1": "6px",
+      "glass-2": "14px"
+    }
+  },
+
+  "typography": {
+    "primaryFont": "Neue Montreal, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial",
+    "weights": {
+      "display": 300,
+      "regular": 400,
+      "medium": 500,
+      "semibold": 600
+    },
+    "scale": {
+      "display-1": { "size": 64, "lineHeight": 72, "tracking": -0.02 },
+      "headline": { "size": 20, "lineHeight": 28, "tracking": -0.01 },
+      "body-lg": { "size": 16, "lineHeight": 24 },
+      "body": { "size": 14, "lineHeight": 20 },
+      "caption": { "size": 12, "lineHeight": 16 }
+    },
+    "usage": {
+      "page-titles": "display-1 semibold, large negative tracking for logo-like treatment",
+      "section-heads": "headline medium",
+      "card-title": "body-lg medium",
+      "body-text": "body regular",
+      "labels": "caption medium"
+    }
+  },
+
+  "colourPalette": {
+    "background": {
+      "bg-0": "#080B10",
+      "bg-1": "#0E1624",
+      "bg-2": "#111823",
+      "gradient": ["#071226", "#0E2F67"]
+    },
+
+    "surface": {
+      "surface-1": "rgba(18,24,34,0.86)",
+      "surface-2": "rgba(24,34,48,0.78)",
+      "glass-outline": "rgba(255,255,255,0.06)"
+    },
+
+    "accent": {
+      "mint": "#5EF7A6",
+      "teal": "#54A388",
+      "purple": "#43256E",
+      "magenta": "#C064FF"
+    },
+
+    "neutral": {
+      "text-primary": "#E6EEF8",
+      "text-secondary": "rgba(230,238,248,0.72)",
+      "muted": "rgba(230,238,248,0.45)",
+      "white": "#FFFFFF",
+      "black": "#0A0A0A"
+    },
+
+    "functional": {
+      "success": "#5EF7A6",
+      "warning": "#E6A23C",
+      "danger": "#E24A6A"
+    }
+  },
+
+  "layout": {
+    "grid": {
+      "columns": 12,
+      "gutter": 24,
+      "maxWidth": 1440
+    },
+    "contentPadding": 24,
+    "sidebarWidth": 72,
+    "cardSpacingVertical": 16
+  },
+
+  "components": {
+    "appShell": {
+      "description": "Full-bleed dark canvas with left vertical navigation, top utility bar and central content area using cards and columns.",
+      "tokens": { "padding": "md", "bg": "background.bg-1" }
+    },
+
+    "sidebar": {
+      "width": "72px",
+      "background": "surface.surface-1",
+      "treatment": "deep-left rounded outer shadow + inner highlight on active icon",
+      "icon": {
+        "size": 20,
+        "activeGlow": "0 6px 18px rgba(94,247,166,0.12)",
+        "inactiveOpacity": 0.55
+      }
+    },
+
+    "topbar": {
+      "height": 64,
+      "elements": [
+        "searchField",
+        "utilityButtons",
+        "avatars",
+        "languageToggle"
+      ],
+      "search": {
+        "shape": "pill",
+        "placeholder": "Create new task ...",
+        "bg": "rgba(255,255,255,0.03)",
+        "icon": "magnifier"
+      }
+    },
+
+    "card": {
+      "variants": ["compact", "media", "detail"],
+      "background": "surface.surface-2",
+      "border": "1px solid rgba(255,255,255,0.04)",
+      "radius": "md",
+      "padding": 16,
+      "shadow": "level-2",
+      "glassEffect": {
+        "backdropBlur": "glass-1",
+        "translucency": 0.12
+      }
+    },
+
+    "button": {
+      "primary": {
+        "shape": "pill",
+        "height": 44,
+        "bgGradient": ["#3FE8C3", "#2BD6A0"],
+        "text": "text-primary",
+        "shadow": "0 8px 30px rgba(46,220,152,0.14)",
+        "hover": "slightly-larger-glow"
+      },
+      "secondary": {
+        "bg": "transparent",
+        "border": "1px solid rgba(255,255,255,0.06)",
+        "text": "muted"
+      },
+      "ghost": { "bg": "rgba(255,255,255,0.02)", "text": "text-primary" }
+    },
+
+    "input": {
+      "height": 44,
+      "bg": "rgba(255,255,255,0.02)",
+      "border": "1px solid rgba(255,255,255,0.04)",
+      "radius": "pill",
+      "focus": "0 0 0 4px rgba(94,247,166,0.08)"
+    },
+
+    "table": {
+      "rowHeight": 56,
+      "head": { "bg": "transparent", "text": "muted" },
+      "row": {
+        "bg": "transparent",
+        "borderBottom": "1px solid rgba(255,255,255,0.03)"
+      },
+      "striped": false,
+      "avatars": { "size": 32 }
+    },
+
+    "avatar": {
+      "sizes": { "s": 24, "m": 32, "l": 40 },
+      "ring": "2px solid rgba(0,0,0,0.25)",
+      "presence": { "online": "#5EF7A6", "offline": "rgba(255,255,255,0.06)" }
+    },
+
+    "progress": {
+      "height": 8,
+      "track": "rgba(255,255,255,0.06)",
+      "fillGradient": ["#58F0B0", "#1AAE8D"],
+      "radius": 8
+    },
+
+    "badge": {
+      "shape": "pill",
+      "height": 22,
+      "bg": "rgba(255,255,255,0.04)",
+      "text": "muted"
+    },
+
+    "chip": {
+      "radius": "pill",
+      "bg": "rgba(255,255,255,0.02)",
+      "selectedBg": "rgba(196,100,255,0.12)",
+      "padding": "sm"
+    },
+
+    "tooltip": {
+      "bg": "#0D1622",
+      "text": "text-primary",
+      "radius": "sm",
+      "shadow": "0 6px 20px rgba(4,6,10,0.7)"
+    }
+  },
+
+  "visualLanguage": {
+    "shadows": "Use deep, soft drop shadows on the outer frame and subtle inner highlights for inset glass surfaces. Card shadows should be darker and more diffuse near edges.",
+    "borders": "Thin (1px) semi-opaque borders to separate panels; slightly lighter outlines for interactive controls.",
+    "glowAndAccent": "Accent actions use neon-like glows at low opacity. Hover states increase glow and slightly lift the element using elevation tokens.",
+    "gradients": "Micro-gradients for buttons and progress fills, mostly linear with a gentle angle (10–20deg).",
+    "texture": "Flat with depth via shadow/blur — avoid noise textures. Use very subtle vignette toward corners to focus center content."
+  },
+
+  "interactions": {
+    "motion": {
+      "duration-short": "120ms",
+      "duration-medium": "240ms",
+      "easing": "cubic-bezier(0.16, 1, 0.3, 1)"
+    },
+    "hover": "scale(1.01) combined with shadow-intensify",
+    "click": "quick depress (translateY 1-2px) + brief ripple for primary actions",
+    "focus": "soft 4px offset glow using accent color at 8% opacity"
+  },
+
+  "accessibility": {
+    "contrastGuidelines": "Ensure primary text (text-primary) on surface backgrounds meet at least 4.5:1 contrast. Use bolder weights for smaller sizes if needed.",
+    "keyboard": "All interactive elements must have clear focus indicators and logical tab order.",
+    "motionPrefs": "Respect reduce-motion. Replace parallax or heavy transitions with subtle opacity-only changes when user requests reduced motion."
+  },
+
+  "usageExamples": {
+    "dashboardLayout": "Left fixed 72px sidebar. Topbar 64px. Main content split into a 2/3 column (cards + table) and a 1/3 column (side cards). Cards stacked with 16px spacing.",
+    "taskCard": "compact card with title, 2-line meta, actions on the right, primary mint CTA bottom-left. Progress bar under title with fill gradient.",
+    "projectRow": "avatar stack left, project name, assignee, date, updates. Hover: row lifts 1px and faint accent glow on the left edge."
+  }
+}

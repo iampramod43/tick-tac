@@ -1,0 +1,970 @@
+@import "tailwindcss";
+@import "ag-grid-community/styles/ag-theme-quartz.css";
+
+@plugin 'tailwindcss-animate';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --color-background: hsl(var(--background));
+  --color-surface-secondary: hsl(var(--surface-table-2));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-success: hsl(var(--success));
+
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --color-chart-1: hsl(var(--chart-1));
+  --color-chart-2: hsl(var(--chart-2));
+  --color-chart-3: hsl(var(--chart-3));
+  --color-chart-4: hsl(var(--chart-4));
+  --color-chart-5: hsl(var(--chart-5));
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --color-muted-background: hsl(var(--muted-background));
+
+  --color-rework-background: hsl(var(--rework-background));
+  --color-gradient-blue: var(--gradient-blue);
+  --color-gradient-pink: var(--gradient-pink);
+  --color-gradient-purple: var(--gradient-purple);
+  --color-gradient-red: var(--gradient-red);
+  --color-icon-active: hsl(var(--icon-active));
+  --color-icon-inactive: hsl(var(--icon-inactive));
+}
+html {
+  overflow: auto; /* Changed from hidden to auto for better Mac-like scrolling */
+}
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+
+  /* Base scrollbar styles are now handled by the Mac-like scrollbar section */
+  body {
+    margin: 0;
+    padding: 0;
+  }
+}
+
+:root {
+  --sidebar-background: 0 0% 100%;
+  --sidebar-foreground: 0, 0%, 13.33%;
+  --sidebar-primary: 240 5.9% 10%;
+  --sidebar-primary-foreground: 0, 0%, 13.33%;
+  --sidebar-accent: 246 35.71%, 94.51%;
+  --sidebar-accent-foreground: 240 5.9% 10%;
+  --sidebar-border: 220 13% 91%;
+  --sidebar-ring: 217.2 91.2% 59.8%;
+}
+.dark {
+  --sidebar-background: 240 5.9% 10%;
+  --sidebar-foreground: 240 4.8% 95.9%;
+  --sidebar-primary: 224.3 76.3% 48%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 255 4.76%, 16.47%;
+  --sidebar-accent-foreground: 240 4.8% 95.9%;
+  --sidebar-border: 240 3.7% 15.9%;
+  --sidebar-ring: 217.2 91.2% 59.8%;
+}
+
+@layer utilities {
+  body {
+    font-family: "GeistSans", sans-serif;
+  }
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%; /* Surface/Table/Surface E1 */
+    --foreground: 240 5.62% 17.45%; /* Text/Text - Primary */
+    --muted: 240 2% 62%; /* Text/Text - Secondary */
+    --muted-foreground: 240 3% 31%; /* same as muted */
+    --popover: 0 0% 100%; /* Surface/Dashboard/Surface - 1 */
+    --popover-foreground: 240 7% 17%; /* Text/Text - Primary */
+    --card: 240 44% 98%; /* Surface/Table/Surface E2 */
+    --card-foreground: 240 7% 17%; /* Text/Text - Primary */
+    --border: 220 14% 96%; /* Border/Border - Primary */
+    --input: 0 0% 90%; /* Border/Border - Primary */
+    --primary: 215 93% 57%; /* Brand/Brand - Primary */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 260 100% 90%; /* Brand/Brand - Secondary */
+    --secondary-foreground: 240 7% 17%;
+    --accent: 0 0% 96%; /* hover */
+    --accent-foreground: 240 7% 17%;
+    --destructive: 0 78% 57%; /* Semantic/Muted Red */
+    --success: 160 85% 39%; /* Semantic/Green Teal */
+    --destructive-foreground: 0 0% 100%;
+    --ring: 260 77% 71%; /* match primary */
+    --chart-1: 160 85% 39%; /* Green Teal */
+    --chart-2: 0 78% 57%; /* Muted Red */
+    --chart-3: 44 100% 71%; /* Golden Yellow */
+    --chart-4: 12 91% 63%; /* Island Orange */
+    --chart-5: 332 96% 58%; /* Knockout Pink */
+    --radius: 0.5rem;
+    --text-primary: 240 7% 17%;
+    --card-border: 220 23% 96%; /* Border/Border - Primary */
+    --muted-background: 248 18% 94%; /* Surface/Surface E3 (#edecef) */
+    --rework-background: 184 72% 73% / 5%; /* Aqua Zing with alpha */
+    --gradient-blue: linear-gradient(97deg, #fff 0%, #bfe1fa 100%);
+    --gradient-pink: linear-gradient(97deg, #fff 0%, #fbe7fe 100%);
+    --gradient-purple: linear-gradient(97deg, #fff 0%, #e6e6ff 100%);
+    --gradient-red: linear-gradient(97deg, #fff 0%, #ffe5e5 100%);
+    --surface-table-2: 0 0% 100%;
+    --surface-table-3: 0 0% 12%; /* Surface/Table/Surface E3 */
+    --icon-active: 240 6% 17%; /* Icon/Icon - Active */
+    --icon-inactive: 240 1% 56%; /* Icon/Icon - Inactive */
+  }
+
+  .dark {
+    --background: 0 0% 5%; /* Surface/Table/Surface E2 (Black) */
+    --foreground: 0 0% 96.47%; /* Text/Text - Primary (Inverted) */
+    --muted: 0 0.9% 78.24%; /* Text/Text - Secondary (lighter) */
+    --muted-foreground: 210 2% 78%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 96%;
+    --card: 0 0% 10%; /* Surface/Table/Surface E1 (Black E2) */
+    --card-foreground: 0 0% 96%;
+    --border: 0 0% 23.92%; /* Border/Dark Mode */
+    --input: 0 0% 24%;
+    --primary: 244 72% 57%; /* Brand/Primary */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 260 100% 90%; /* Brand/Secondary */
+    --secondary-foreground: 0 0% 96%;
+    --accent: 225 05% 16%; /* hover */
+    --accent-foreground: 0 0% 96%;
+    --destructive: 0 78% 57%;
+    --success: 160 85% 39%; /* Semantic/Green Teal */
+    --destructive-foreground: 0 0% 100%;
+    --ring: 260 77% 71%;
+    --chart-1: 160 85% 39%;
+    --chart-2: 0 78% 57%;
+    --chart-3: 44 100% 71%;
+    --chart-4: 12 91% 63%;
+    --chart-5: 332 96% 58%;
+    --text-primary: 0 0% 96%;
+    --card-border: 0 0% 24%;
+    --muted-background: 228 10% 12%; /* Surface E3 (#28292c) */
+    --rework-background: 184 72% 73%; /* solid fallback */
+    --gradient-blue: linear-gradient(97deg, #0d0d0d 0%, #0030a5 100%);
+    --gradient-pink: linear-gradient(97deg, #0d0d0d 0%, #4d1421 100%);
+    --gradient-purple: linear-gradient(97deg, #0d0d0d 0%, #124d34 100%);
+    --gradient-red: linear-gradient(97deg, #0d0d0d 0%, #d55b2899 100%);
+    --surface-table-2: 0 0% 10%; /* Surface/Table/Surface E3 */
+    --icon-active: 0 0% 96%; /* Icon/Icon - Active */
+    --icon-inactive: 240 1% 78%; /* Icon/Icon - Inactive */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-primary;
+  }
+}
+
+/*
+  ---break---
+*/
+
+:root {
+  --sidebar: hsl(0 0% 100%);
+  --sidebar-foreground: hsl(0, 0%, 13.33%);
+  --sidebar-primary: hsl(224, 100%, 58%);
+  --sidebar-primary-foreground: hsl(0 0% 98%);
+  --sidebar-accent: hsl(246 35.71% 94.51%);
+  --sidebar-accent-foreground: hsl(240 5.9% 10%);
+  --sidebar-border: hsl(220 13% 91%);
+  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+}
+
+/*
+  ---break---
+*/
+
+.dark {
+  --sidebar: hsl(240 5.9% 10%);
+  --sidebar-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-primary: hsl(224.3 76.3% 48%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(255 4.76% 16.47%);
+  --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-border: hsl(240 3.7% 15.9%);
+  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+}
+
+/*
+  ---break---
+*/
+
+@theme inline {
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+/*
+  ---break---
+*/
+
+/*
+  ---break---
+*/
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Custom Animation Keyframes for Water Progress */
+@keyframes ripple {
+  0% {
+    transform: scale(1);
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(1.3);
+    opacity: 0;
+  }
+}
+
+/* AG grid styles starts */
+
+.ag-theme-quartz {
+  --ag-font-family: "GeistSans", sans-serif !important;
+  --ag-data-font-size: 12px !important;
+  --ag-header-font-weight: 700 !important;
+}
+
+.ag-theme-quartz .ag-root-wrapper {
+  border: none !important;
+}
+
+.ag-header-cell-label {
+  font-weight: 600;
+}
+
+/* Add vertical borders to cells */
+.ag-theme-quartz .ag-cell {
+  border-right: 1px solid #e2e8f0 !important;
+  /* Light gray border */
+}
+
+/* Remove header background and set header border */
+.ag-theme-quartz .ag-header-cell {
+  background-color: transparent !important;
+  /* border-right: 1px solid #E2E8F0 !important;                                                                                                                                        */
+  /* border-bottom: 1px solid #E2E8F0 !important;                                                                                                                                       */
+}
+
+/* Remove bottom border for all cells in the last row of ag-grid */
+.ag-row:last-of-type .ag-cell {
+  border-bottom: none !important;
+}
+.dark .ag-row:last-of-type .ag-cell {
+  border-bottom: none !important;
+}
+
+/* Restore border when any cell in the last row is focused - higher specificity */
+.ag-row:last-of-type .ag-cell.ag-cell-focus {
+  border-bottom: 1px solid #3b82f6 !important; /* Tailwind blue-500 */
+}
+.dark .ag-row:last-of-type .ag-cell.ag-cell-focus {
+  border-bottom: 1px solid #3b82f6 !important; /* Tailwind blue-500 */
+}
+
+/* General focus styles for non-last rows */
+.ag-cell.ag-cell-focus {
+  border-bottom: 1px solid #3b82f6 !important; /* Tailwind blue-500 */
+}
+.ag-cell:first-child.ag-cell-focus {
+  border-bottom-left-radius: 12px !important;
+  border-bottom: 1px solid #3b82f6 !important;
+}
+
+/* Add border radius to first and last cells when focused in last row */
+.ag-row:last-of-type .ag-cell:first-child.ag-cell-focus {
+  border-bottom-left-radius: 12px !important;
+  border-bottom: 1px solid #3b82f6 !important;
+}
+
+.ag-row:last-of-type .ag-cell:last-child.ag-cell-focus {
+  border-bottom-right-radius: 12px !important;
+  border-bottom: 1px solid #3b82f6 !important;
+}
+
+.dark .ag-row:last-of-type .ag-cell.ag-cell-focus {
+  border-bottom: 1px solid #3b82f6 !important; /* Tailwind blue-500 */
+}
+
+/* Dark mode border radius styles */
+.dark .ag-row:last-of-type .ag-cell:first-child.ag-cell-focus {
+  border-bottom-left-radius: 12px !important;
+  border-bottom: 1px solid #3b82f6 !important;
+}
+
+.dark .ag-row:last-of-type .ag-cell:last-child.ag-cell-focus {
+  border-bottom-right-radius: 12px !important;
+  border-bottom: 1px solid #3b82f6 !important;
+}
+
+/* AG Grid specific scrollbar styles */
+.ag-theme-quartz ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.ag-theme-quartz ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ag-theme-quartz ::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.ag-theme-quartz:hover ::-webkit-scrollbar-thumb,
+.ag-theme-quartz .scrolling ::-webkit-scrollbar-thumb {
+  opacity: 1;
+}
+
+.dark .ag-theme-quartz ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.dark .ag-theme-quartz:hover ::-webkit-scrollbar-thumb,
+.dark .ag-theme-quartz .scrolling ::-webkit-scrollbar-thumb {
+  opacity: 1;
+}
+
+/* Ensure scrollable containers work with Mac-like behavior */
+.overflow-auto,
+.overflow-scroll,
+.overflow-x-auto,
+.overflow-y-auto {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.overflow-auto:hover,
+.overflow-scroll:hover,
+.overflow-x-auto:hover,
+.overflow-y-auto:hover {
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.dark .overflow-auto:hover,
+.dark .overflow-scroll:hover,
+.dark .overflow-x-auto:hover,
+.dark .overflow-y-auto:hover {
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+/* Enhanced Mac-like scrolling behavior */
+* {
+  -webkit-overflow-scrolling: touch; /* Enable momentum scrolling on iOS/macOS */
+}
+
+/* Add smooth scrolling for better UX */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Override for immediate scrolling when needed */
+.scroll-auto {
+  scroll-behavior: auto;
+}
+
+/* Prevent overscroll bounce on body */
+body {
+  overscroll-behavior: none;
+}
+
+/* Allow overscroll on scrollable elements */
+.overflow-auto,
+.overflow-scroll,
+.overflow-x-auto,
+.overflow-y-auto {
+  overscroll-behavior: auto;
+}
+
+/* Ag grid styles ends */
+
+.animate-ripple {
+  animation: ripple 2s linear infinite;
+}
+
+.animate-ripple-delay {
+  animation: ripple 2s linear 1s infinite;
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.centerBetween {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  color: var(--color-icon-inactive);
+}
+.icon:hover {
+  color: var(--color-icon-active);
+}
+
+/* Table border styles */
+.with-borders .border-x {
+  border-left: 1px solid #f3f4f6;
+  border-right: 1px solid #f3f4f6;
+}
+
+/* Remove all borders for checkbox columns */
+.no-border {
+  border: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+}
+
+.with-borders table {
+  border: 1px solid #f3f4f6;
+}
+
+.with-borders thead {
+  background-color: #f8f7fd;
+}
+
+.with-borders tbody {
+  background-color: #ffffff;
+}
+
+.with-borders thead tr th:first-child {
+  border-left: none;
+}
+
+.with-borders thead tr th:last-child {
+  border-right: none;
+}
+
+.with-borders tbody tr td:first-child {
+  border-left: none;
+}
+
+.with-borders tbody tr td:last-child {
+  border-right: none;
+}
+
+.with-borders tbody tr {
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.with-borders tbody tr:hover {
+  background-color: rgba(248, 247, 253, 0.5);
+}
+
+/* PDF Viewer Responsive Styles */
+.rpv-default-layout__toolbar {
+  overflow-x: visible !important;
+  overflow-y: visible !important;
+  position: relative;
+}
+.rpv-toolbar {
+  overflow: scroll !important;
+}
+.pdf-viewer-responsive {
+  width: 100%;
+  min-width: 0;
+  max-width: 900px;
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Responsive toolbar for react-pdf-viewer */
+.pdf-viewer-responsive .rpv-default-layout__toolbar,
+.pdf-viewer-responsive .rpv-default-layout__toolbar-wrapper {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.ag-header-cell-text {
+  color: #2a2a2f;
+  font-weight: 700;
+}
+.dark .ag-header-cell-text {
+  color: #f6f6f6;
+  font-weight: 700;
+}
+.ag-header-cell {
+  border-right: solid 1px #f3f4f6 !important;
+  border-bottom: none !important;
+}
+.dark .ag-header-cell {
+  border-right: solid 1px #3d3d3d !important;
+  border-bottom: none !important;
+}
+.ag-cell {
+  color: #2a2a2f;
+  font-weight: 400;
+  border-right: solid 1px #f3f4f6;
+  border-bottom: solid 1px #f3f4f6;
+  box-sizing: border-box; /* Ensures borders don't mess with cell width */
+}
+
+.dark .ag-cell {
+  color: #f6f6f6;
+  font-weight: 400;
+  border-right: solid 1px #3d3d3d;
+  border-bottom: solid 1px #3d3d3d;
+  box-sizing: border-box; /* Ensures borders don't mess with cell width */
+}
+.ag-cell.ag-cell-focus {
+  border-right: solid 1px #3b82f6 !important; /* Tailwind blue-500 */
+}
+/* Fix dark mode cell focus border - ensure blue border is visible */
+.dark .ag-cell.ag-cell-focus {
+  border-right: solid 1px #3b82f6 !important; /* Tailwind blue-500 */
+}
+
+.ag-row {
+  border-bottom: none !important;
+}
+
+@media (max-width: 900px) {
+  .pdf-viewer-responsive {
+    max-width: 100vw;
+    width: 100vw;
+    min-width: 0;
+  }
+  .pdf-viewer-responsive .rpv-default-layout__toolbar,
+  .pdf-viewer-responsive .rpv-default-layout__toolbar-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.25rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .pdf-viewer-responsive {
+    height: 60vh;
+    max-width: 100vw;
+    min-width: 0;
+    padding: 0;
+  }
+  .pdf-viewer-responsive .rpv-default-layout__toolbar,
+  .pdf-viewer-responsive .rpv-default-layout__toolbar-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.25rem;
+  }
+  .pdf-viewer-responsive .rpv-default-layout__toolbar {
+    font-size: 0.9rem;
+  }
+}
+.rpv-toolbar__label {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  color: red !important;
+}
+.rpv-page-navigation__current-page-input {
+  width: 32px;
+}
+.rpv-page-navigation__current-page-input > input {
+  height: 24px;
+  width: 32px;
+}
+.rpv-toolbar {
+  font-size: 12px;
+  background-color: white !important;
+}
+.rpv-core__icon {
+  width: 16px !important;
+  height: 16px !important;
+  stroke-width: 2 !important;
+  stroke: white !important;
+}
+.rpv-core__minimal-button {
+  color: white !important;
+}
+
+.rpv-core__textbox {
+  color: white !important;
+}
+
+/* === MAC-LIKE SCROLLBAR STYLES === */
+/* Universal Mac-like scrollbar for all platforms */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+  opacity: 0;
+  transition: opacity 0.3s ease, background-color 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.4);
+  opacity: 1;
+}
+
+/* Show scrollbar on hover over scrollable element */
+*:hover::-webkit-scrollbar-thumb,
+.scrollbar-hover::-webkit-scrollbar-thumb {
+  opacity: 1;
+}
+
+/* Show scrollbar when actively scrolling */
+.scrolling::-webkit-scrollbar-thumb,
+body.scrolling ::-webkit-scrollbar-thumb,
+body[data-scrollbar-thumb="scrolling"] ::-webkit-scrollbar-thumb {
+  opacity: 1;
+}
+
+/* Dark mode scrollbar */
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* Firefox Mac-like scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+*:hover,
+.scrollbar-hover {
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.scrolling {
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.dark *:hover,
+.dark .scrollbar-hover {
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.dark .scrolling {
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+/* Mac-like smooth scrolling behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Override for immediate scrolling when needed */
+.scroll-auto {
+  scroll-behavior: auto;
+}
+
+.ag-theme-quartz .ag-cell-value {
+  line-height: 20px !important;
+}
+.ag-theme-quartz .ag-cell {
+  white-space: normal !important; /* enables wrapping */
+  line-height: 1.6 !important; /* increases space between lines */
+}
+
+/* Enhanced Toast Styling */
+.custom-toast {
+  transform-origin: bottom right;
+}
+
+.react-hot-toast div[role="status"] {
+  animation: toast-enter 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.react-hot-toast div[role="status"][data-visible="false"] {
+  animation: toast-exit 0.35s cubic-bezier(0.755, 0.05, 0.855, 0.06) forwards;
+}
+
+@keyframes toast-enter {
+  0% {
+    transform: translate3d(100%, 0, 0) scale(0.7) rotateY(30deg);
+    opacity: 0;
+    filter: blur(4px);
+  }
+  50% {
+    transform: translate3d(-10px, 0, 0) scale(1.02) rotateY(-2deg);
+    opacity: 0.8;
+    filter: blur(0px);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1) rotateY(0deg);
+    opacity: 1;
+    filter: blur(0px);
+  }
+}
+
+@keyframes toast-exit {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 1;
+  }
+  30% {
+    transform: translate3d(20px, 0, 0) scale(0.98);
+    opacity: 0.7;
+  }
+  100% {
+    transform: translate3d(120%, 0, 0) scale(0.6);
+    opacity: 0;
+  }
+}
+
+/* Toast container positioning and z-index */
+.react-hot-toast > div {
+  z-index: 9999;
+}
+
+/* Enhanced hover and interaction effects */
+.react-hot-toast div[role="status"]:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 32px 64px -12px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.react-hot-toast div[role="status"]:active {
+  transform: translateY(-1px) scale(0.98);
+  transition: all 0.1s ease;
+}
+
+/* Enhanced loading spinner with pulse effect */
+.react-hot-toast svg {
+  animation: spin-pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes spin-pulse {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.1);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+/* Subtle shimmer effect for toast background */
+.react-hot-toast div[role="status"]::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 100%
+  );
+  animation: shimmer 3s ease-in-out infinite;
+  border-radius: 12px;
+  pointer-events: none;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  50% {
+    left: 100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Generic skeleton shimmer utility */
+.shimmer {
+  position: relative;
+  overflow: hidden;
+  background-color: #f3f4f6; /* slate-100 */
+}
+
+.shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #f3f4f6 0%, #e5e7eb 50%, #f3f4f6 100%);
+  animation: skeleton-shimmer 1.5s infinite;
+  transform: translateX(-100%);
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Progress bar for toast duration */
+.react-hot-toast div[role="status"]::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    hsl(var(--primary)),
+    hsl(var(--primary) / 0.5)
+  );
+  border-radius: 0 0 12px 12px;
+  animation: progress-bar 4s linear forwards;
+  opacity: 0.7;
+}
+
+@keyframes progress-bar {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+/* Success toast specific progress bar */
+.react-hot-toast div[role="status"].react-hot-toast-success::after {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--success)),
+    hsl(var(--success) / 0.5)
+  );
+}
+
+/* Error toast specific progress bar */
+.react-hot-toast div[role="status"].react-hot-toast-error::after {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--destructive)),
+    hsl(var(--destructive) / 0.5)
+  );
+}
+
+/* Responsive toast sizing */
+@media (max-width: 640px) {
+  .react-hot-toast div[role="status"] {
+    min-width: 280px;
+    max-width: calc(100vw - 32px);
+    margin: 0 16px;
+  }
+}
+
+/* Dark mode specific adjustments */
+.dark .react-hot-toast div[role="status"]::before {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    transparent 100%
+  );
+}
+
+/* Enhanced focus styles for accessibility */
+.react-hot-toast div[role="status"]:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+/* Micro-interaction for toast close button */
+.react-hot-toast button:hover {
+  transform: rotate(90deg) scale(1.1);
+  transition: transform 0.2s ease;
+}
+
+/* Staggered animation for multiple toasts */
+.react-hot-toast div[role="status"]:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.react-hot-toast div[role="status"]:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.react-hot-toast div[role="status"]:nth-child(4) {
+  animation-delay: 0.3s;
+}

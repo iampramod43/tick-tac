@@ -1,0 +1,71 @@
+{
+  "lists": [
+    { "id": "inbox", "title": "Inbox", "color": "#007AFF", "order": 0, "createdAt": "2025-11-01T10:00:00Z" },
+    { "id": "personal", "title": "Personal", "color": "#FF9500", "order": 3, "createdAt": "2025-11-01T10:00:00Z" },
+    { "id": "work", "title": "Work", "color": "#34C759", "order": 4, "createdAt": "2025-11-01T10:00:00Z" }
+  ],
+  "tasks": [
+    {
+      "id": "t1",
+      "listId": "inbox",
+      "title": "Buy groceries",
+      "notes": "Milk, eggs, bread, and vegetables",
+      "priority": 2,
+      "due": "2025-11-12",
+      "tags": ["shopping", "personal"],
+      "done": false,
+      "createdAt": "2025-11-10T09:00:00Z",
+      "updatedAt": "2025-11-10T09:00:00Z"
+    },
+    {
+      "id": "t2",
+      "listId": "work",
+      "title": "Prepare presentation",
+      "notes": "Q4 results and future roadmap",
+      "priority": 1,
+      "due": "2025-11-13",
+      "tags": ["meeting", "important"],
+      "done": false,
+      "createdAt": "2025-11-09T14:00:00Z",
+      "updatedAt": "2025-11-09T14:00:00Z"
+    },
+    {
+      "id": "t3",
+      "listId": "personal",
+      "title": "Gym session",
+      "priority": 3,
+      "tags": ["health"],
+      "done": true,
+      "createdAt": "2025-11-08T07:00:00Z",
+      "updatedAt": "2025-11-11T18:00:00Z"
+    },
+    {
+      "id": "t4",
+      "listId": "work",
+      "title": "Review pull requests",
+      "notes": "Check the new authentication module",
+      "priority": 2,
+      "due": "2025-11-12",
+      "tags": ["code-review"],
+      "done": false,
+      "subtasks": [
+        { "id": "st1", "title": "Review authentication logic", "done": true },
+        { "id": "st2", "title": "Test edge cases", "done": false },
+        { "id": "st3", "title": "Leave feedback", "done": false }
+      ],
+      "createdAt": "2025-11-10T10:00:00Z",
+      "updatedAt": "2025-11-10T10:00:00Z"
+    },
+    {
+      "id": "t5",
+      "listId": "inbox",
+      "title": "Call dentist for appointment",
+      "priority": 2,
+      "due": "2025-11-14",
+      "done": false,
+      "createdAt": "2025-11-10T11:00:00Z",
+      "updatedAt": "2025-11-10T11:00:00Z"
+    }
+  ]
+}
+

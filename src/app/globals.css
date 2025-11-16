@@ -1,0 +1,537 @@
+@import "tailwindcss";
+
+/* Neue Montreal Font - Using system fallback for now */
+/* To use actual Neue Montreal, add the font file to /public/fonts/ and reference it */
+@font-face {
+  font-family: "Neue Montreal";
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: local("Neue Montreal Light"), local("NeueMontreal-Light");
+}
+
+@font-face {
+  font-family: "Neue Montreal";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local("Neue Montreal Regular"), local("NeueMontreal-Regular");
+}
+
+@font-face {
+  font-family: "Neue Montreal";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: local("Neue Montreal Medium"), local("NeueMontreal-Medium");
+}
+
+@font-face {
+  font-family: "Neue Montreal";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local("Neue Montreal SemiBold"), local("NeueMontreal-SemiBold");
+}
+
+/* Design System Theme Tokens from design.json */
+@theme {
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-xxl: 48px;
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-pill: 9999px;
+
+  /* Blur */
+  --blur-glass-1: 6px;
+  --blur-glass-2: 14px;
+
+  /* Typography */
+  --font-primary: "Neue Montreal", system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-weight-display: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+
+  /* Typography Scale */
+  --font-size-display-1: 64px;
+  --line-height-display-1: 72px;
+  --letter-spacing-display-1: -0.02em;
+  --font-size-headline: 20px;
+  --line-height-headline: 28px;
+  --letter-spacing-headline: -0.01em;
+  --font-size-body-lg: 16px;
+  --line-height-body-lg: 24px;
+  --font-size-body: 14px;
+  --line-height-body: 20px;
+  --font-size-caption: 12px;
+  --line-height-caption: 16px;
+
+  /* Interactions */
+  --duration-short: 120ms;
+  --duration-medium: 240ms;
+  --easing: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Max Width Utilities - Prevent conflict with spacing variables */
+  --max-width-xs: 20rem; /* 320px */
+  --max-width-sm: 24rem; /* 384px */
+  --max-width-md: 28rem; /* 448px */
+  --max-width-lg: 32rem; /* 512px */
+  --max-width-xl: 36rem; /* 576px */
+  --max-width-2xl: 42rem; /* 672px */
+  --max-width-3xl: 48rem; /* 768px */
+  --max-width-4xl: 56rem; /* 896px */
+  --max-width-5xl: 64rem; /* 1024px */
+  --max-width-6xl: 72rem; /* 1152px */
+  --max-width-7xl: 80rem; /* 1280px */
+
+  /* Tailwind Color Utilities - Map to CSS variables */
+  --color-background: var(--color-background);
+  --color-foreground: var(--color-foreground);
+  --color-card: var(--color-card);
+  --color-card-foreground: var(--color-card-foreground);
+  --color-popover: var(--color-popover);
+  --color-popover-foreground: var(--color-popover-foreground);
+  --color-primary: var(--color-primary);
+  --color-primary-foreground: var(--color-primary-foreground);
+  --color-secondary: var(--color-secondary);
+  --color-secondary-foreground: var(--color-secondary-foreground);
+  --color-muted: var(--color-muted);
+  --color-muted-foreground: var(--color-muted-foreground);
+  --color-accent: var(--color-accent);
+  --color-accent-foreground: var(--color-accent-foreground);
+  --color-destructive: var(--color-destructive);
+  --color-destructive-foreground: var(--color-destructive-foreground);
+  --color-border: var(--color-border);
+  --color-input: var(--color-input);
+  --color-ring: var(--color-ring);
+}
+
+/* Default (Dark) Theme Colors */
+:root {
+  /* Colors - Background */
+  --color-bg-0: #080b10;
+  --color-bg-1: #0e1624;
+  --color-bg-2: #111823;
+  --color-bg-gradient-start: #071226;
+  --color-bg-gradient-end: #0e2f67;
+
+  /* Colors - Surface */
+  --color-surface-1: rgba(18, 24, 34, 0.86);
+  --color-surface-2: rgba(24, 34, 48, 0.78);
+  --color-glass-outline: rgba(255, 255, 255, 0.06);
+
+  /* Colors - Accent */
+  --color-accent-mint: #5ef7a6;
+  --color-accent-teal: #54a388;
+  --color-accent-purple: #43256e;
+  --color-accent-magenta: #c064ff;
+
+  /* Colors - Neutral */
+  --color-text-primary: #e6eef8;
+  --color-text-secondary: rgba(230, 238, 248, 0.72);
+  --color-text-muted: rgba(230, 238, 248, 0.45);
+  --color-white: #ffffff;
+  --color-black: #0a0a0a;
+
+  /* Colors - Functional */
+  --color-success: #5ef7a6;
+  --color-warning: #e6a23c;
+  --color-danger: #e24a6a;
+
+  /* ShadCN Compatible Color Mappings */
+  --color-background: var(--color-bg-1);
+  --color-foreground: var(--color-text-primary);
+  --color-card: var(--color-surface-2);
+  --color-card-foreground: var(--color-text-primary);
+  --color-popover: var(--color-surface-1);
+  --color-popover-foreground: var(--color-text-primary);
+  --color-primary: var(--color-accent-mint);
+  --color-primary-foreground: var(--color-black);
+  --color-secondary: var(--color-surface-1);
+  --color-secondary-foreground: var(--color-text-primary);
+  --color-muted: rgba(255, 255, 255, 0.06);
+  --color-muted-foreground: var(--color-text-muted);
+  --color-accent: rgba(255, 255, 255, 0.04);
+  --color-accent-foreground: var(--color-text-primary);
+  --color-destructive: var(--color-danger);
+  --color-destructive-foreground: var(--color-white);
+  --color-border: var(--color-glass-outline);
+  --color-input: rgba(255, 255, 255, 0.02);
+  --color-ring: var(--color-accent-mint);
+
+  /* Elevation Shadows */
+  --shadow-level-1: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-level-2: 0 8px 24px rgba(7, 10, 18, 0.55);
+  --shadow-level-3: inset 0 1px 0 rgba(255, 255, 255, 0.02),
+    0 24px 60px rgba(6, 8, 12, 0.65);
+}
+
+/* Light Theme Overrides */
+.light {
+  /* Colors - Background (Light) */
+  --color-bg-0: #ffffff;
+  --color-bg-1: #f8fafc;
+  --color-bg-2: #f1f5f9;
+  --color-bg-gradient-start: #e0f2fe;
+  --color-bg-gradient-end: #bae6fd;
+
+  /* Colors - Surface (Light) */
+  --color-surface-1: rgba(255, 255, 255, 0.9);
+  --color-surface-2: rgba(248, 250, 252, 0.85);
+  --color-glass-outline: rgba(0, 0, 0, 0.08);
+
+  /* Colors - Accent (Light) */
+  --color-accent-mint: #10b981;
+  --color-accent-teal: #14b8a6;
+  --color-accent-purple: #8b5cf6;
+  --color-accent-magenta: #a855f7;
+
+  /* Colors - Neutral (Light) */
+  --color-text-primary: #0f172a;
+  --color-text-secondary: rgba(15, 23, 42, 0.7);
+  --color-text-muted: rgba(15, 23, 42, 0.5);
+
+  /* Colors - Functional (Light) */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+
+  /* ShadCN Compatible Color Mappings (Light) */
+  --color-background: var(--color-bg-1);
+  --color-foreground: var(--color-text-primary);
+  --color-card: var(--color-surface-2);
+  --color-card-foreground: var(--color-text-primary);
+  --color-popover: var(--color-surface-1);
+  --color-popover-foreground: var(--color-text-primary);
+  --color-primary: var(--color-accent-mint);
+  --color-primary-foreground: var(--color-white);
+  --color-secondary: var(--color-surface-1);
+  --color-secondary-foreground: var(--color-text-primary);
+  --color-muted: rgba(0, 0, 0, 0.05);
+  --color-muted-foreground: var(--color-text-muted);
+  --color-accent: rgba(0, 0, 0, 0.04);
+  --color-accent-foreground: var(--color-text-primary);
+  --color-destructive: var(--color-danger);
+  --color-destructive-foreground: var(--color-white);
+  --color-border: var(--color-glass-outline);
+  --color-input: rgba(0, 0, 0, 0.02);
+  --color-ring: var(--color-accent-mint);
+
+  /* Elevation Shadows (Light) */
+  --shadow-level-1: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-level-2: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-level-3: 0 24px 60px rgba(0, 0, 0, 0.15);
+}
+
+/* Base Styles */
+* {
+  border-color: var(--color-border);
+}
+
+html {
+  background: var(--color-bg-1);
+  color: var(--color-text-primary);
+}
+
+body {
+  background: var(--color-bg-1);
+  color: var(--color-text-primary);
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Glassmorphic Utility Classes */
+.glass-1 {
+  background: var(--color-surface-1);
+  backdrop-filter: blur(var(--blur-glass-1));
+  -webkit-backdrop-filter: blur(var(--blur-glass-1));
+  border: 1px solid var(--color-glass-outline);
+}
+
+.glass-2 {
+  background: var(--color-surface-2);
+  backdrop-filter: blur(var(--blur-glass-2));
+  -webkit-backdrop-filter: blur(var(--blur-glass-2));
+  border: 1px solid var(--color-glass-outline);
+}
+
+/* Elevation Utilities */
+.elevation-1 {
+  box-shadow: var(--shadow-level-1);
+}
+
+.elevation-2 {
+  box-shadow: var(--shadow-level-2);
+}
+
+.elevation-3 {
+  box-shadow: var(--shadow-level-3);
+}
+
+/* Accent Gradient */
+.gradient-accent {
+  background: linear-gradient(135deg, #3fe8c3 0%, #2bd6a0 100%);
+}
+
+.gradient-accent-glow {
+  box-shadow: 0 8px 30px rgba(46, 220, 152, 0.14);
+}
+
+/* Focus Glow */
+.focus-glow {
+  box-shadow: 0 0 0 4px rgba(94, 247, 166, 0.08);
+}
+
+/* Hover Scale */
+.hover-lift {
+  transition: transform var(--duration-short) var(--easing),
+    box-shadow var(--duration-short) var(--easing);
+}
+
+.hover-lift:hover {
+  transform: scale(1.01);
+}
+
+/* Markdown Prose Styles */
+.prose {
+  color: var(--color-text-primary);
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.prose p {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.prose ul,
+.prose ol {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  padding-left: 1.5em;
+}
+
+.prose code {
+  background-color: var(--color-muted);
+  padding: 0.125rem 0.25rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.875em;
+}
+
+.prose pre {
+  background-color: var(--color-muted);
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+}
+
+.prose blockquote {
+  border-left-color: var(--color-accent-mint);
+  color: var(--color-text-muted);
+}
+
+.prose a {
+  color: var(--color-accent-mint);
+  text-decoration: underline;
+}
+
+.prose a:hover {
+  opacity: 0.8;
+}
+
+/* Tiptap Editor Styles */
+.ProseMirror {
+  outline: none;
+  min-height: 200px;
+  color: var(--color-text-primary);
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  color: var(--color-text-muted);
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.ProseMirror ul,
+.ProseMirror ol {
+  padding-left: 1.5rem;
+  margin: 0.5rem 0;
+}
+
+.ProseMirror li {
+  margin: 0.25rem 0;
+}
+
+.ProseMirror h1,
+.ProseMirror h2,
+.ProseMirror h3,
+.ProseMirror h4,
+.ProseMirror h5,
+.ProseMirror h6 {
+  font-weight: var(--font-weight-semibold);
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  line-height: 1.2;
+  color: var(--color-text-primary);
+}
+
+.ProseMirror h1 {
+  font-size: 2em;
+}
+
+.ProseMirror h2 {
+  font-size: 1.5em;
+}
+
+.ProseMirror h3 {
+  font-size: 1.25em;
+}
+
+.ProseMirror blockquote {
+  border-left: 3px solid var(--color-accent-mint);
+  padding-left: 1rem;
+  margin: 1rem 0;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.ProseMirror code {
+  background-color: var(--color-muted);
+  padding: 0.125rem 0.25rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.875em;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+}
+
+.ProseMirror pre {
+  background-color: var(--color-muted);
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+.ProseMirror pre code {
+  background-color: transparent;
+  padding: 0;
+  font-size: 0.875em;
+}
+
+.ProseMirror a {
+  color: var(--color-accent-mint);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.ProseMirror a:hover {
+  opacity: 0.8;
+}
+
+.ProseMirror img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-md);
+  margin: 1rem 0;
+}
+
+.ProseMirror table {
+  border-collapse: collapse;
+  margin: 1rem 0;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.ProseMirror table td,
+.ProseMirror table th {
+  min-width: 1em;
+  border: 1px solid var(--color-border);
+  padding: 0.5rem;
+  vertical-align: top;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.ProseMirror table th {
+  font-weight: var(--font-weight-semibold);
+  text-align: left;
+  background-color: var(--color-muted);
+}
+
+.ProseMirror table .selectedCell:after {
+  z-index: 2;
+  position: absolute;
+  content: "";
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(94, 247, 166, 0.1);
+  pointer-events: none;
+}
+
+.ProseMirror table .column-resize-handle {
+  position: absolute;
+  right: -2px;
+  top: 0;
+  bottom: -2px;
+  width: 4px;
+  background-color: var(--color-accent-mint);
+  pointer-events: none;
+}
+
+.ProseMirror ul[data-type="taskList"] {
+  list-style: none;
+  padding: 0;
+}
+
+.ProseMirror ul[data-type="taskList"] li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.ProseMirror ul[data-type="taskList"] li > label {
+  flex: 0 0 auto;
+  margin-right: 0.5rem;
+  user-select: none;
+}
+
+.ProseMirror ul[data-type="taskList"] li > div {
+  flex: 1 1 auto;
+}
+
+.ProseMirror ul[data-type="taskList"] input[type="checkbox"] {
+  cursor: pointer;
+  margin-top: 0.25rem;
+}
+
+.ProseMirror hr {
+  border: none;
+  border-top: 2px solid var(--color-border);
+  margin: 2rem 0;
+}
