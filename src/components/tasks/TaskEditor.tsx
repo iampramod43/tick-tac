@@ -1,12 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   Task,
   Subtask,
   RecurrencePattern,
-  ReminderSettings,
   ReminderOffset,
 } from "@/src/lib/types";
 import { Input } from "@/components/ui/input";
@@ -30,7 +29,6 @@ import {
   Repeat,
   Bell,
   Clock,
-  Sparkles,
   Loader2,
 } from "lucide-react";
 import { useAuth } from "@clerk/nextjs";
@@ -47,6 +45,10 @@ import { useNotes } from "@/src/hooks/useNotes";
 import { useLists } from "@/src/hooks/useLists";
 import { useTaskTime } from "@/src/hooks/useTimeTracking";
 import { TaskTimer } from "./TaskTimer";
+import { useActionEvents } from "@/src/hooks/useActionEvents";
+import { BreathingEditorBorder } from "@/src/components/action-engine/BreathingEditorBorder";
+import { PredictiveLineSuggestion } from "@/src/components/action-engine/PredictiveLineSuggestion";
+import { AmbientAIAura } from "@/src/components/action-engine/AmbientAIAura";
 
 interface TaskEditorProps {
   task?: Task;
@@ -120,8 +122,25 @@ export function TaskEditor({
   const [subtasks, setSubtasks] = useState<Subtask[]>(task?.subtasks || []);
   const [subtaskInput, setSubtaskInput] = useState("");
   const [isGeneratingDescription, setIsGeneratingDescription] = useState(false);
+  const [lastTaskId, setLastTaskId] = useState<string | undefined>(task?.id);
+  const notesTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { getToken } = useAuth();
+  const { sendEvent } = useActionEvents();
+
+  // Track task switching
+  useEffect(() => {
+    if (task?.id && task.id !== lastTaskId) {
+      if (lastTaskId) {
+        sendEvent("task_switched", {
+          fromTaskId: lastTaskId,
+          toTaskId: task.id,
+        });
+      }
+      setLastTaskId(task.id);
+      sendEvent("task_opened", { taskId: task.id });
+    }
+  }, [task?.id, lastTaskId, sendEvent]);
 
   // Recurrence state
   const [hasRecurrence, setHasRecurrence] = useState(!!task?.recurrence);
@@ -322,15 +341,54 @@ export function TaskEditor({
         />
       </div>
 
-      <div>
+      <div className="relative" data-task-panel="true">
         <label className="text-sm font-medium mb-2 block">Description</label>
         <div className="relative">
           <Textarea
+            ref={notesTextareaRef}
             placeholder="Add notes or description..."
             value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            className="min-h-[100px] pr-10"
+            onChange={(e) => {
+              setNotes(e.target.value);
+              if (task?.id) {
+                sendEvent("note_updated", {
+                  taskId: task.id,
+                  length: e.target.value.length,
+                });
+              }
+            }}
+            onFocus={() => {
+              if (task?.id) {
+                sendEvent("note_started", { taskId: task.id });
+              }
+            }}
+            onBlur={() => {
+              if (task?.id) {
+                sendEvent("note_idle", { taskId: task.id });
+              }
+            }}
+            onKeyDown={() => {
+              if (task?.id) {
+                sendEvent("typing_started", { taskId: task.id });
+              }
+            }}
+            onKeyUp={() => {
+              if (task?.id) {
+                sendEvent("typing_stopped", { taskId: task.id });
+              }
+            }}
+            className="min-h-[100px] pr-10 relative"
           />
+          {task?.id && (
+            <>
+              <BreathingEditorBorder
+                editorRef={notesTextareaRef}
+                taskId={task.id}
+              />
+              <PredictiveLineSuggestion editorRef={notesTextareaRef} />
+            </>
+          )}
+          <AmbientAIAura />
           {title.trim() && (
             <button
               type="button"
@@ -822,7 +880,7 @@ export function TaskEditor({
       {/* Linked Notes Section */}
       {task && (
         <div>
-          <label className="text-sm font-medium mb-2 block flex items-center gap-2">
+          <label className="text-sm font-medium mb-2 flex items-center gap-2">
             <FileText className="h-4 w-4" />
             Linked Notes ({linkedNotes.length})
           </label>

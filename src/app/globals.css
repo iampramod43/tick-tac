@@ -537,3 +537,130 @@ body {
   border-top: 2px solid var(--color-border);
   margin: 2rem 0;
 }
+
+/* Action Engine Augmented UX Animations */
+
+@keyframes cursor-hint {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  50% {
+    opacity: 0.35;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+}
+
+.animate-cursor-hint {
+  animation: cursor-hint 0.5s ease-out;
+}
+
+@keyframes text-glow {
+  0% {
+    opacity: 0;
+    box-shadow: 0 0 0 rgba(59, 130, 246, 0);
+  }
+  50% {
+    opacity: 0.3;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+  }
+  100% {
+    opacity: 0;
+    box-shadow: 0 0 0 rgba(59, 130, 246, 0);
+  }
+}
+
+.animate-text-glow {
+  animation: text-glow 1.5s ease-in-out;
+}
+
+@keyframes hand-tap {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) translateY(10px) scale(0.8);
+  }
+  30% {
+    opacity: 1;
+    transform: translate(-50%, -50%) translateY(0) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) translateY(-5px) scale(1.1);
+  }
+  70% {
+    opacity: 1;
+    transform: translate(-50%, -50%) translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) translateY(-10px) scale(0.8);
+  }
+}
+
+.animate-hand-tap {
+  animation: hand-tap 1s ease-in-out;
+}
+
+@keyframes breathing-border {
+  0%,
+  100% {
+    opacity: 0.3;
+    border-color: rgba(59, 130, 246, 0.3);
+  }
+  50% {
+    opacity: 0.7;
+    border-color: rgba(59, 130, 246, 0.7);
+  }
+}
+
+.animate-breathing-border {
+  animation: breathing-border 2s ease-in-out infinite;
+}
+
+@keyframes line-suggestion {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.animate-line-suggestion {
+  animation: line-suggestion 2s ease-in-out;
+}
+
+@keyframes line-guide {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.animate-line-guide {
+  animation: line-guide 2s ease-in-out infinite;
+}
+
+@keyframes ambient-aura {
+  0%,
+  100% {
+    opacity: 0.1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}
+
+.animate-ambient-aura {
+  animation: ambient-aura 3s ease-in-out infinite;
+}

@@ -10,6 +10,7 @@ import {
   FlowStatusResponse,
   FlowTask,
 } from "@/src/lib/api/flowApi";
+import { useActionEvents } from "./useActionEvents";
 
 export interface ProgressInfo {
   current: number;
@@ -42,6 +43,7 @@ const FLOW_SESSION_KEY = "flow_mode_session";
 
 export function useFlowMode(): UseFlowModeReturn {
   const { getToken } = useAuth();
+  const { sendEvent } = useActionEvents();
   const [isActive, setIsActive] = useState(false);
   const [session, setSession] = useState<FlowStatusResponse | null>(null);
   const [currentTask, setCurrentTask] = useState<FlowTask | null>(null);
@@ -151,6 +153,11 @@ export function useFlowMode(): UseFlowModeReturn {
         };
         const response = await flowApi.start(request);
         setSequence(response.sequence);
+        sendEvent("flow_session_started", {
+          duration,
+          energy,
+          sessionId: response.sessionId,
+        });
         await refreshStatus();
       } catch (err: any) {
         setError(err.message || "Failed to start Flow Mode");
@@ -159,7 +166,7 @@ export function useFlowMode(): UseFlowModeReturn {
         setLoading(false);
       }
     },
-    [flowApi, refreshStatus]
+    [flowApi, refreshStatus, sendEvent]
   );
 
   const nextTask = useCallback(async () => {
@@ -187,6 +194,12 @@ export function useFlowMode(): UseFlowModeReturn {
     setError(null);
     try {
       const response = await flowApi.complete();
+      if (currentTask) {
+        sendEvent("timer_completed", {
+          taskId: currentTask.id,
+          sessionId: session?.startedAt,
+        });
+      }
       if (response.task) {
         setCurrentTask(response.task);
       }
@@ -206,13 +219,18 @@ export function useFlowMode(): UseFlowModeReturn {
     } finally {
       setLoading(false);
     }
-  }, [flowApi, refreshStatus]);
+  }, [flowApi, refreshStatus, currentTask, session, sendEvent]);
 
   const skipTask = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const response = await flowApi.skip();
+      if (currentTask) {
+        sendEvent("flow_session_skipped_task", {
+          taskId: currentTask.id,
+        });
+      }
       if (response.task) {
         setCurrentTask(response.task);
       }
@@ -226,7 +244,7 @@ export function useFlowMode(): UseFlowModeReturn {
     } finally {
       setLoading(false);
     }
-  }, [flowApi, refreshStatus]);
+  }, [flowApi, refreshStatus, currentTask, sendEvent]);
 
   const stopFlow = useCallback(async () => {
     setLoading(true);

@@ -34,6 +34,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { useLists } from "@/src/hooks/useLists";
 import { useTaskTime } from "@/src/hooks/useTimeTracking";
+import { useActionEvents } from "@/src/hooks/useActionEvents";
+import { useActionEngine } from "@/src/providers/ActionEngineProvider";
+import { GravityNudge } from "@/src/components/action-engine/GravityNudge";
+import { FlowMagnetMode } from "@/src/components/action-engine/FlowMagnetMode";
 
 interface TaskItemProps {
   task: Task;
@@ -70,6 +74,8 @@ export function TaskItem({
   const { totalMinutes, totalHours, totalMinutesRemainder } = useTaskTime(
     task.id
   );
+  const { sendEvent } = useActionEvents();
+  const { focusLock } = useActionEngine();
 
   // Use provided elapsedTime if active
   const displayTime = isActive ? elapsedTime : 0;
@@ -87,6 +93,24 @@ export function TaskItem({
 
   const handleCheckboxChange = (checked: boolean) => {
     onToggle(task.id, checked);
+    sendEvent(checked ? "task_completed" : "task_uncompleted", {
+      taskId: task.id,
+    });
+  };
+
+  const handleTaskClick = (e?: React.MouseEvent) => {
+    // Check focus lock
+    if (focusLock.taskId && task.id !== focusLock.taskId) {
+      e?.preventDefault();
+      e?.stopPropagation();
+      return;
+    }
+    sendEvent("task_opened", { taskId: task.id });
+    onClick(task);
+  };
+
+  const handleTaskContextMenu = () => {
+    sendEvent("task_reopened", { taskId: task.id });
   };
 
   // Use trackingState from props if active
@@ -112,23 +136,27 @@ export function TaskItem({
   const listColor = list?.color || "#8b5cf6"; // Default to violet
 
   return (
-    <div
-      className={cn(
-        "group relative w-full rounded-2xl border bg-card px-4 py-3 transition-all",
-        "hover:shadow-lg hover:border-border cursor-pointer",
-        "focus-within:outline-2 focus-within:outline-violet-500 focus-within:outline-offset-2",
-        task.done && "opacity-60",
-        isActive && "border-violet-600 bg-card/50"
-      )}
-      onClick={() => onClick(task)}
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          onClick(task);
-        }
-      }}
-    >
+    <GravityNudge taskId={task.id} isActive={isActive}>
+      <FlowMagnetMode taskId={task.id}>
+        <div
+          className={cn(
+            "group relative w-full rounded-2xl border bg-card px-4 py-3 transition-all",
+            "hover:shadow-lg hover:border-border cursor-pointer",
+            "focus-within:outline-2 focus-within:outline-violet-500 focus-within:outline-offset-2",
+            task.done && "opacity-60",
+            isActive && "border-violet-600 bg-card/50"
+          )}
+          onClick={handleTaskClick}
+          onContextMenu={handleTaskContextMenu}
+          tabIndex={0}
+          data-task-active={isActive}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              handleTaskClick();
+            }
+          }}
+        >
       {isActive ? (
         // Active state: Purple block layout matching KosmoTime design
         <div className="flex items-center gap-4">
@@ -318,7 +346,11 @@ export function TaskItem({
                 <DropdownMenuItem
                   onClick={(e) => {
                     e.stopPropagation();
-                    onToggle(task.id, !task.done);
+                    const newDone = !task.done;
+                    onToggle(task.id, newDone);
+                    sendEvent(newDone ? "task_completed" : "task_uncompleted", {
+                      taskId: task.id,
+                    });
                   }}
                 >
                   {task.done ? (
@@ -367,6 +399,7 @@ export function TaskItem({
                 <DropdownMenuItem
                   onClick={(e) => {
                     e.stopPropagation();
+                    sendEvent("task_edit_started", { taskId: task.id });
                     onEdit(task);
                   }}
                 >
@@ -411,6 +444,7 @@ export function TaskItem({
                   <DropdownMenuItem
                     onClick={(e) => {
                       e.stopPropagation();
+                      sendEvent("timer_started", { taskId: task.id });
                       onStartTimer?.(task.id);
                     }}
                   >
@@ -549,7 +583,11 @@ export function TaskItem({
                 <DropdownMenuItem
                   onClick={(e) => {
                     e.stopPropagation();
-                    onToggle(task.id, !task.done);
+                    const newDone = !task.done;
+                    onToggle(task.id, newDone);
+                    sendEvent(newDone ? "task_completed" : "task_uncompleted", {
+                      taskId: task.id,
+                    });
                   }}
                 >
                   {task.done ? (
@@ -598,6 +636,7 @@ export function TaskItem({
                 <DropdownMenuItem
                   onClick={(e) => {
                     e.stopPropagation();
+                    sendEvent("task_edit_started", { taskId: task.id });
                     onEdit(task);
                   }}
                 >
@@ -619,6 +658,8 @@ export function TaskItem({
           </div>
         </div>
       )}
-    </div>
+        </div>
+      </FlowMagnetMode>
+    </GravityNudge>
   );
 }
