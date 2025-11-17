@@ -6,7 +6,7 @@ import { useLists } from '@/src/hooks/useLists';
 import { useTasks } from '@/src/hooks/useTasks';
 import { usePomodoro } from '@/src/hooks/usePomodoro';
 import { Button } from '@/components/ui/button';
-import { Play, Pause, RotateCcw, Settings, Plus } from 'lucide-react';
+import { Play, Pause, RotateCcw, Settings, Sparkles, Zap, Target, Clock } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import {
   Dialog,
@@ -176,7 +176,7 @@ export default function PomodoroPage() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen overflow-hidden bg-background">
       <Sidebar
         lists={lists}
         activeListId="pomodoro"
@@ -185,208 +185,335 @@ export default function PomodoroPage() {
         taskCounts={taskCounts}
       />
 
-      <div className="flex-1 flex flex-col overflow-hidden bg-gradient-to-br from-background to-muted/30">
+      <div className="flex-1 flex flex-col overflow-y-auto relative">
+        {/* Animated Background with Gradient Mesh */}
+        <div className="fixed inset-0 left-0 right-0 pointer-events-none overflow-hidden -z-10">
+          <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-bg-gradient-start)] via-background to-[var(--color-bg-gradient-end)]" />
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-[var(--color-accent-mint)]/10 rounded-full blur-[120px] animate-pulse" />
+          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[var(--color-accent-magenta)]/10 rounded-full blur-[120px] animate-pulse delay-1000" />
+          <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-[var(--color-accent-teal)]/5 rounded-full blur-[100px] animate-pulse delay-500" />
+        </div>
+
         {/* Flow Mode Task Display */}
         {isActive && currentTask && (
-          <div className="bg-violet-600/10 border-b border-violet-600/30 p-4">
-            <div className="max-w-2xl mx-auto text-center">
-              <p className="text-xs text-violet-400 uppercase tracking-wider mb-1">
-                Flow Mode Active
-              </p>
-              <p className="text-sm font-medium text-violet-300">
-                {currentTask.title}
-              </p>
+          <div className="relative z-10 bg-gradient-to-r from-violet-600/20 to-purple-600/20 border-b border-violet-500/30 backdrop-blur-sm">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+              <div className="flex items-center justify-center gap-2">
+                <Sparkles className="w-4 h-4 text-violet-400 animate-pulse" />
+                <p className="text-xs text-violet-300 uppercase tracking-wider font-medium">
+                  Flow Mode Active
+                </p>
+                <span className="text-sm text-violet-200 font-medium ml-2">
+                  {currentTask.title}
+                </span>
+              </div>
             </div>
           </div>
         )}
-        <div className="flex-1 flex items-center justify-center p-8">
-          <div className="max-w-2xl w-full space-y-8">
-            {/* Timer Type Selector */}
-            <div className="flex justify-center gap-2">
-              <Button
-                variant={timerType === 'work' ? 'default' : 'outline'}
-                onClick={() => switchTo('work')}
-                disabled={isRunning}
-              >
-                Work
-              </Button>
-              <Button
-                variant={timerType === 'shortBreak' ? 'default' : 'outline'}
-                onClick={() => switchTo('shortBreak')}
-                disabled={isRunning}
-              >
-                Short Break
-              </Button>
-              <Button
-                variant={timerType === 'longBreak' ? 'default' : 'outline'}
-                onClick={() => switchTo('longBreak')}
-                disabled={isRunning}
-              >
-                Long Break
-              </Button>
-            </div>
 
-            {/* Timer Display */}
-            <div className="relative">
-              <div className="w-full aspect-square max-w-md mx-auto rounded-full bg-card border-8 border-primary/20 flex items-center justify-center relative overflow-hidden">
-                {/* Progress Ring */}
-                <svg className="absolute inset-0 w-full h-full -rotate-90">
-                  <circle
-                    cx="50%"
-                    cy="50%"
-                    r="45%"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="8"
-                    className="text-primary"
-                    strokeDasharray={`${progress * 2.83} 283`}
-                  />
-                </svg>
+        {/* Main Content */}
+        <div className="relative z-10 flex-1 overflow-y-auto">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-6">
+            <div className="max-w-6xl mx-auto space-y-4 lg:space-y-6">
+              {/* Header Section */}
+              <div className="text-center space-y-2">
+                <div className="flex items-center justify-center gap-2">
+                  <Zap className="w-5 h-5 text-primary animate-pulse" />
+                  <h1 className="text-2xl lg:text-3xl font-light tracking-tight text-foreground">
+                    AI-Powered Focus Timer
+                  </h1>
+                </div>
+                <p className="text-xs lg:text-sm text-muted-foreground max-w-2xl mx-auto">
+                  Harness the power of focused work sessions with intelligent productivity tracking
+                </p>
+              </div>
 
-                {/* Time */}
-                <div className="text-center z-10">
-                  <div className="text-8xl font-bold tabular-nums">
-                    {formatTime(timeLeft)}
-                  </div>
-                  <div className="text-xl text-muted-foreground mt-2">
-                    {timerType === 'work' ? 'Focus Time' : timerType === 'shortBreak' ? 'Short Break' : 'Long Break'}
-                  </div>
+              {/* Timer Type Selector */}
+              <div className="flex justify-center">
+                <div className="inline-flex gap-2 p-1.5 glass-2 rounded-full">
+                  <Button
+                    variant={timerType === 'work' ? 'default' : 'ghost'}
+                    onClick={() => switchTo('work')}
+                    disabled={isRunning}
+                    className={cn(
+                      'rounded-full px-6 transition-all duration-300',
+                      timerType === 'work'
+                        ? 'bg-gradient-to-r from-primary to-[var(--color-accent-teal)] text-primary-foreground shadow-lg shadow-primary/25 hover:shadow-primary/40'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                    )}
+                  >
+                    <Target className="w-4 h-4 mr-2" />
+                    Work
+                  </Button>
+                  <Button
+                    variant={timerType === 'shortBreak' ? 'default' : 'ghost'}
+                    onClick={() => switchTo('shortBreak')}
+                    disabled={isRunning}
+                    className={cn(
+                      'rounded-full px-6 transition-all duration-300',
+                      timerType === 'shortBreak'
+                        ? 'bg-gradient-to-r from-primary to-[var(--color-accent-teal)] text-primary-foreground shadow-lg shadow-primary/25 hover:shadow-primary/40'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                    )}
+                  >
+                    <Clock className="w-4 h-4 mr-2" />
+                    Short Break
+                  </Button>
+                  <Button
+                    variant={timerType === 'longBreak' ? 'default' : 'ghost'}
+                    onClick={() => switchTo('longBreak')}
+                    disabled={isRunning}
+                    className={cn(
+                      'rounded-full px-6 transition-all duration-300',
+                      timerType === 'longBreak'
+                        ? 'bg-gradient-to-r from-primary to-[var(--color-accent-teal)] text-primary-foreground shadow-lg shadow-primary/25 hover:shadow-primary/40'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                    )}
+                  >
+                    <Clock className="w-4 h-4 mr-2" />
+                    Long Break
+                  </Button>
                 </div>
               </div>
-            </div>
 
-            {/* Controls */}
-            <div className="flex justify-center gap-4">
-              <Button
-                size="lg"
-                onClick={toggleTimer}
-                className="w-32"
-              >
-                {isRunning ? (
-                  <>
-                    <Pause className="mr-2 h-5 w-5" />
-                    Pause
-                  </>
-                ) : (
-                  <>
-                    <Play className="mr-2 h-5 w-5" />
-                    Start
-                  </>
-                )}
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={resetTimer}
-              >
-                <RotateCcw className="mr-2 h-5 w-5" />
-                Reset
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={() => setIsSettingsOpen(true)}
-              >
-                <Settings className="h-5 w-5" />
-              </Button>
-            </div>
+              {/* Timer Display - Main Focus */}
+              <div className="relative flex justify-center items-center px-4">
+                <div className="relative w-full max-w-xs aspect-square">
+                  {/* Glow Effect */}
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/20 to-[var(--color-accent-magenta)]/20 blur-3xl animate-pulse" />
 
-            {/* Session Stats */}
-            <div className="grid grid-cols-3 gap-4 pt-8">
-              <div className="text-center p-4 bg-card rounded-lg border">
-                <div className="text-3xl font-bold">{sessionsCompleted}</div>
-                <div className="text-sm text-muted-foreground">Sessions Today</div>
-              </div>
-              <div className="text-center p-4 bg-card rounded-lg border">
-                <div className="text-3xl font-bold">{savedSessions.length}</div>
-                <div className="text-sm text-muted-foreground">Total Sessions</div>
-              </div>
-              <div className="text-center p-4 bg-card rounded-lg border">
-                <div className="text-3xl font-bold">
-                  {Math.round(savedSessions.reduce((acc, s) => acc + s.duration, 0) / 60)}h
-                </div>
-                <div className="text-sm text-muted-foreground">Time Focused</div>
-              </div>
-            </div>
+                  {/* Glass Circle Container */}
+                  <div className="relative w-full h-full rounded-full glass-2 p-3 lg:p-4 flex items-center justify-center border-2 border-border">
+                    {/* Progress Ring SVG */}
+                    <svg className="absolute inset-3 lg:inset-4 w-[calc(100%-1.5rem)] lg:w-[calc(100%-2rem)] h-[calc(100%-1.5rem)] lg:h-[calc(100%-2rem)] -rotate-90">
+                      <defs>
+                        <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stopColor="var(--color-accent-mint)" />
+                          <stop offset="50%" stopColor="var(--color-accent-teal)" />
+                          <stop offset="100%" stopColor="var(--color-accent-magenta)" />
+                        </linearGradient>
+                      </defs>
+                      <circle
+                        cx="50%"
+                        cy="50%"
+                        r="48%"
+                        fill="none"
+                        stroke="url(#progressGradient)"
+                        strokeWidth="5"
+                        strokeLinecap="round"
+                        strokeDasharray={`${progress * 2.83} 283`}
+                        className="transition-all duration-1000"
+                        style={{
+                          filter: isRunning ? 'drop-shadow(0 0 12px var(--color-accent-mint))' : 'none'
+                        }}
+                      />
+                    </svg>
 
-            {/* Recent Sessions */}
-            {savedSessions.length > 0 && (
-              <div className="bg-card rounded-lg border p-4">
-                <h3 className="font-semibold mb-3">Recent Sessions</h3>
-                <div className="space-y-2 max-h-48 overflow-y-auto">
-                  {savedSessions.slice(0, 10).map((session) => (
-                    <div key={session.id} className="flex items-center justify-between text-sm py-2 border-b last:border-0">
-                      <span className={cn(
-                        'px-2 py-1 rounded text-xs font-medium',
-                        session.type === 'work' 
-                          ? 'bg-primary/10 text-primary'
-                          : 'bg-muted text-muted-foreground'
-                      )}>
-                        {session.type === 'work' ? 'Work' : session.type === 'shortBreak' ? 'Short Break' : 'Long Break'}
-                      </span>
-                      <span className="text-muted-foreground">
-                        {session.duration} min • {format(new Date(session.startTime), 'HH:mm')}
-                      </span>
+                    {/* Time Display */}
+                    <div className="text-center z-10 space-y-1 lg:space-y-2">
+                      <div className="text-4xl sm:text-5xl lg:text-6xl font-light tabular-nums tracking-tight text-foreground">
+                        {formatTime(timeLeft)}
+                      </div>
+                      <div className="flex items-center justify-center gap-1.5">
+                        <div className={cn(
+                          'w-1.5 h-1.5 rounded-full transition-all duration-300',
+                          isRunning ? 'bg-primary animate-pulse shadow-lg shadow-primary/50' : 'bg-muted-foreground/30'
+                        )} />
+                        <div className="text-xs lg:text-sm text-muted-foreground font-medium">
+                          {timerType === 'work' ? 'Deep Focus Mode' : timerType === 'shortBreak' ? 'Quick Recharge' : 'Extended Rest'}
+                        </div>
+                      </div>
                     </div>
-                  ))}
+                  </div>
                 </div>
               </div>
-            )}
+
+              {/* Controls */}
+              <div className="flex justify-center gap-2 lg:gap-3 px-4">
+                <Button
+                  size="default"
+                  onClick={toggleTimer}
+                  className={cn(
+                    'w-28 lg:w-32 rounded-full transition-all duration-300 text-sm lg:text-base font-medium',
+                    'bg-gradient-to-r from-primary to-[var(--color-accent-teal)] text-primary-foreground',
+                    'hover:shadow-xl hover:shadow-primary/30 hover:scale-105',
+                    'active:scale-95'
+                  )}
+                >
+                  {isRunning ? (
+                    <>
+                      <Pause className="mr-1.5 h-4 w-4" />
+                      Pause
+                    </>
+                  ) : (
+                    <>
+                      <Play className="mr-1.5 h-4 w-4 fill-current" />
+                      Start
+                    </>
+                  )}
+                </Button>
+                <Button
+                  size="default"
+                  variant="outline"
+                  onClick={resetTimer}
+                  className="rounded-full glass-1 border-border text-foreground hover:bg-accent hover:border-border/50 transition-all duration-300"
+                >
+                  <RotateCcw className="mr-1.5 h-4 w-4" />
+                  <span className="hidden sm:inline">Reset</span>
+                </Button>
+                <Button
+                  size="default"
+                  variant="outline"
+                  onClick={() => setIsSettingsOpen(true)}
+                  className="rounded-full glass-1 border-border text-foreground hover:bg-accent hover:border-border/50 transition-all duration-300"
+                >
+                  <Settings className="h-4 w-4" />
+                </Button>
+              </div>
+
+              {/* Session Stats */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 px-4">
+                <div className="glass-2 rounded-xl p-4 text-center border border-border hover:border-primary/30 transition-all duration-300 group">
+                  <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 mb-2 group-hover:bg-primary/20 transition-colors">
+                    <Target className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="text-2xl lg:text-3xl font-light text-foreground mb-0.5">{sessionsCompleted}</div>
+                  <div className="text-xs text-muted-foreground">Sessions Today</div>
+                </div>
+                <div className="glass-2 rounded-xl p-4 text-center border border-border hover:border-[var(--color-accent-teal)]/30 transition-all duration-300 group">
+                  <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[var(--color-accent-teal)]/10 mb-2 group-hover:bg-[var(--color-accent-teal)]/20 transition-colors">
+                    <Sparkles className="w-5 h-5 text-[var(--color-accent-teal)]" />
+                  </div>
+                  <div className="text-2xl lg:text-3xl font-light text-foreground mb-0.5">{savedSessions.length}</div>
+                  <div className="text-xs text-muted-foreground">Total Sessions</div>
+                </div>
+                <div className="glass-2 rounded-xl p-4 text-center border border-border hover:border-[var(--color-accent-magenta)]/30 transition-all duration-300 group sm:col-span-1 col-span-1">
+                  <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[var(--color-accent-magenta)]/10 mb-2 group-hover:bg-[var(--color-accent-magenta)]/20 transition-colors">
+                    <Zap className="w-5 h-5 text-[var(--color-accent-magenta)]" />
+                  </div>
+                  <div className="text-2xl lg:text-3xl font-light text-foreground mb-0.5">
+                    {Math.round(savedSessions.reduce((acc, s) => acc + s.duration, 0) / 60)}h
+                  </div>
+                  <div className="text-xs text-muted-foreground">Time Focused</div>
+                </div>
+              </div>
+
+              {/* Recent Sessions */}
+              {savedSessions.length > 0 && (
+                <div className="glass-2 rounded-xl border border-border p-4 mx-4 sm:mx-0">
+                  <h3 className="text-base font-medium text-foreground mb-3 flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-primary" />
+                    Recent Sessions
+                  </h3>
+                  <div className="space-y-1.5 max-h-40 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
+                    {savedSessions.slice(0, 5).map((session) => (
+                      <div
+                        key={session.id}
+                        className="flex items-center justify-between text-xs py-2 px-3 rounded-lg bg-accent/50 hover:bg-accent transition-colors border border-border"
+                      >
+                        <span className={cn(
+                          'px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm',
+                          session.type === 'work'
+                            ? 'bg-primary/20 text-primary border border-primary/30'
+                            : 'bg-muted text-muted-foreground border border-border'
+                        )}>
+                          {session.type === 'work' ? 'Work' : session.type === 'shortBreak' ? 'Short' : 'Long'}
+                        </span>
+                        <span className="text-muted-foreground text-xs">
+                          {session.duration} min • {format(new Date(session.startTime), 'HH:mm')}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
       {/* Settings Dialog */}
       <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
-        <DialogContent>
+        <DialogContent className="glass-2 border-border text-foreground max-w-md">
           <DialogHeader>
-            <DialogTitle>Pomodoro Settings</DialogTitle>
+            <DialogTitle className="text-2xl font-light flex items-center gap-2">
+              <Settings className="w-5 h-5 text-primary" />
+              Timer Settings
+            </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-4">
+          <div className="space-y-5 py-4">
             <div className="space-y-2">
-              <Label>Work Duration (minutes)</Label>
+              <Label className="text-muted-foreground flex items-center gap-2">
+                <Target className="w-4 h-4 text-primary" />
+                Work Duration (minutes)
+              </Label>
               <Input
                 type="number"
                 value={settings.workDuration}
                 onChange={(e) => setSettings({...settings, workDuration: parseInt(e.target.value) || 25})}
                 min={1}
                 max={60}
+                className="glass-1 border-border text-foreground focus:border-primary/50 focus:ring-primary/20"
               />
             </div>
             <div className="space-y-2">
-              <Label>Short Break (minutes)</Label>
+              <Label className="text-muted-foreground flex items-center gap-2">
+                <Clock className="w-4 h-4 text-[var(--color-accent-teal)]" />
+                Short Break (minutes)
+              </Label>
               <Input
                 type="number"
                 value={settings.shortBreakDuration}
                 onChange={(e) => setSettings({...settings, shortBreakDuration: parseInt(e.target.value) || 5})}
                 min={1}
                 max={30}
+                className="glass-1 border-border text-foreground focus:border-[var(--color-accent-teal)]/50 focus:ring-[var(--color-accent-teal)]/20"
               />
             </div>
             <div className="space-y-2">
-              <Label>Long Break (minutes)</Label>
+              <Label className="text-muted-foreground flex items-center gap-2">
+                <Clock className="w-4 h-4 text-[var(--color-accent-magenta)]" />
+                Long Break (minutes)
+              </Label>
               <Input
                 type="number"
                 value={settings.longBreakDuration}
                 onChange={(e) => setSettings({...settings, longBreakDuration: parseInt(e.target.value) || 15})}
                 min={1}
                 max={60}
+                className="glass-1 border-border text-foreground focus:border-[var(--color-accent-magenta)]/50 focus:ring-[var(--color-accent-magenta)]/20"
               />
             </div>
             <div className="space-y-2">
-              <Label>Sessions Until Long Break</Label>
+              <Label className="text-muted-foreground flex items-center gap-2">
+                <Zap className="w-4 h-4 text-primary" />
+                Sessions Until Long Break
+              </Label>
               <Input
                 type="number"
                 value={settings.sessionsUntilLongBreak}
                 onChange={(e) => setSettings({...settings, sessionsUntilLongBreak: parseInt(e.target.value) || 4})}
                 min={1}
                 max={10}
+                className="glass-1 border-border text-foreground focus:border-primary/50 focus:ring-primary/20"
               />
             </div>
           </div>
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setIsSettingsOpen(false)}>Cancel</Button>
-            <Button onClick={handleSaveSettings}>Save</Button>
+          <div className="flex justify-end gap-3 pt-2">
+            <Button
+              variant="outline"
+              onClick={() => setIsSettingsOpen(false)}
+              className="glass-1 border-border text-foreground hover:bg-accent"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSaveSettings}
+              className="bg-gradient-to-r from-primary to-[var(--color-accent-teal)] text-primary-foreground hover:shadow-lg hover:shadow-primary/30"
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              Save Changes
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
