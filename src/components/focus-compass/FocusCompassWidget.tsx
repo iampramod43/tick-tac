@@ -87,7 +87,7 @@ export function FocusCompassWidget() {
   };
 
   const handleSkip = async () => {
-    if (!recommendation?.recommendedTask) return;
+    if (!recommendation?.recommendedTask || loading) return;
 
     const taskId = recommendation.recommendedTask.task._id || recommendation.recommendedTask.task.id;
     setSkippedTaskIds((prev) => [...prev, taskId]);
@@ -256,7 +256,11 @@ export function FocusCompassWidget() {
           disabled={loading}
           className="border-[var(--color-glass-outline)]"
         >
-          <SkipForward className="h-4 w-4" />
+          {loading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <SkipForward className="h-4 w-4" />
+          )}
         </Button>
         <Button
           variant="outline"

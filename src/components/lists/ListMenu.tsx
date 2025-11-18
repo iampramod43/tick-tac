@@ -1,7 +1,7 @@
 'use client';
 
 import { List } from '@/src/lib/types';
-import { MoreHorizontal, Edit, Trash2, Palette } from 'lucide-react';
+import { MoreHorizontal, Edit, Trash2, Palette, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -36,17 +36,34 @@ export function ListMenu({ list }: ListMenuProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [title, setTitle] = useState(list.title);
   const [color, setColor] = useState(list.color);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleEdit = async () => {
-    if (title.trim()) {
-      await updateList(list.id, { title: title.trim(), color });
-      setEditDialogOpen(false);
+    if (title.trim() && !isSaving) {
+      setIsSaving(true);
+      try {
+        await updateList(list.id, { title: title.trim(), color });
+        setEditDialogOpen(false);
+      } catch (error) {
+        console.error('Error updating list:', error);
+      } finally {
+        setIsSaving(false);
+      }
     }
   };
 
   const handleDelete = async () => {
-    await deleteList(list.id);
-    setDeleteDialogOpen(false);
+    if (isDeleting) return;
+    setIsDeleting(true);
+    try {
+      await deleteList(list.id);
+      setDeleteDialogOpen(false);
+    } catch (error) {
+      console.error('Error deleting list:', error);
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -120,10 +137,19 @@ export function ListMenu({ list }: ListMenuProps) {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setEditDialogOpen(false)} disabled={isSaving}>
               Cancel
             </Button>
-            <Button onClick={handleEdit}>Save</Button>
+            <Button onClick={handleEdit} disabled={isSaving || !title.trim()}>
+              {isSaving ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save"
+              )}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -139,11 +165,18 @@ export function ListMenu({ list }: ListMenuProps) {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)} disabled={isDeleting}>
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleDelete}>
-              Delete
+            <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>
+              {isDeleting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                "Delete"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

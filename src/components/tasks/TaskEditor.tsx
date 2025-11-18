@@ -122,6 +122,7 @@ export function TaskEditor({
   const [subtasks, setSubtasks] = useState<Subtask[]>(task?.subtasks || []);
   const [subtaskInput, setSubtaskInput] = useState("");
   const [isGeneratingDescription, setIsGeneratingDescription] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [lastTaskId, setLastTaskId] = useState<string | undefined>(task?.id);
   const notesTextareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -182,61 +183,74 @@ export function TaskEditor({
     ? allNotes.filter((note) => note.linkedTaskId === task.id && !note.archived)
     : [];
 
-  const handleSave = () => {
-    if (!title.trim()) return;
+  const handleSave = async () => {
+    if (!title.trim() || isSaving) return;
 
-    let recurrence: RecurrencePattern | undefined;
-    if (hasRecurrence) {
-      recurrence = {
-        type: recurrenceType,
-        interval: recurrenceInterval > 0 ? recurrenceInterval : 1,
+    setIsSaving(true);
+
+    try {
+      let recurrence: RecurrencePattern | undefined;
+      if (hasRecurrence) {
+        recurrence = {
+          type: recurrenceType,
+          interval: recurrenceInterval > 0 ? recurrenceInterval : 1,
+        };
+
+        if (recurrenceType === "weekly" && recurrenceDaysOfWeek.length > 0) {
+          recurrence.daysOfWeek = recurrenceDaysOfWeek;
+        }
+
+        if (recurrenceType === "monthly" && recurrenceDayOfMonth) {
+          recurrence.dayOfMonth = recurrenceDayOfMonth;
+        }
+
+        if (recurrenceEndDate) {
+          recurrence.endDate = formatUTCDate(recurrenceEndDate);
+        }
+
+        if (recurrenceCount && recurrenceCount > 0) {
+          recurrence.count = recurrenceCount;
+        }
+      }
+
+      const taskData: Omit<Task, "id" | "createdAt" | "updatedAt"> = {
+        listId: selectedListId,
+        title: title.trim(),
+        notes: notes.trim(),
+        priority,
+        due: due ? formatUTCDate(due) : undefined,
+        dueTime: dueTime.trim() || undefined,
+        tags: tags.length > 0 ? tags : undefined,
+        subtasks: subtasks.length > 0 ? subtasks : undefined,
+        done: done,
+        recurrence: hasRecurrence ? recurrence : undefined,
+        isRecurrenceTemplate: hasRecurrence ? true : undefined,
+        nextOccurrence:
+          hasRecurrence && recurrence && due
+            ? formatUTCDate(calculateNextOccurrence(recurrence, due) || due)
+            : undefined,
+        reminderSettings:
+          reminderEnabled && due
+            ? {
+                enabled: true,
+                offsets: reminderOffsets,
+                customOffset: reminderCustomOffset,
+                recurring: reminderRecurring,
+              }
+            : undefined,
       };
 
-      if (recurrenceType === "weekly" && recurrenceDaysOfWeek.length > 0) {
-        recurrence.daysOfWeek = recurrenceDaysOfWeek;
-      }
-
-      if (recurrenceType === "monthly" && recurrenceDayOfMonth) {
-        recurrence.dayOfMonth = recurrenceDayOfMonth;
-      }
-
-      if (recurrenceEndDate) {
-        recurrence.endDate = formatUTCDate(recurrenceEndDate);
-      }
-
-      if (recurrenceCount && recurrenceCount > 0) {
-        recurrence.count = recurrenceCount;
-      }
+      // Call onSave - handle both sync and async cases
+      await Promise.resolve(onSave(taskData));
+    } catch (error) {
+      console.error("Error saving task:", error);
+      // Don't reset isSaving on error so user can see the button is still disabled
+      // The parent component should handle the error and potentially reset the state
+    } finally {
+      // Only reset if save was successful (no error thrown)
+      // If onSave throws, the parent should handle it
+      setIsSaving(false);
     }
-
-    const taskData: Omit<Task, "id" | "createdAt" | "updatedAt"> = {
-      listId: selectedListId,
-      title: title.trim(),
-      notes: notes.trim(),
-      priority,
-      due: due ? formatUTCDate(due) : undefined,
-      dueTime: dueTime.trim() || undefined,
-      tags: tags.length > 0 ? tags : undefined,
-      subtasks: subtasks.length > 0 ? subtasks : undefined,
-      done: done,
-      recurrence: hasRecurrence ? recurrence : undefined,
-      isRecurrenceTemplate: hasRecurrence ? true : undefined,
-      nextOccurrence:
-        hasRecurrence && recurrence && due
-          ? formatUTCDate(calculateNextOccurrence(recurrence, due) || due)
-          : undefined,
-      reminderSettings:
-        reminderEnabled && due
-          ? {
-              enabled: true,
-              offsets: reminderOffsets,
-              customOffset: reminderCustomOffset,
-              recurring: reminderRecurring,
-            }
-          : undefined,
-    };
-
-    onSave(taskData);
   };
 
   const toggleReminderOffset = (offset: ReminderOffset) => {
@@ -950,11 +964,23 @@ export function TaskEditor({
           </Label>
         </div>
         <div className="flex gap-2">
-          <Button type="button" variant="outline" onClick={onCancel}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            disabled={isSaving}
+          >
             Cancel
           </Button>
-          <Button onClick={handleSave} disabled={!title.trim()}>
-            Save
+          <Button onClick={handleSave} disabled={!title.trim() || isSaving}>
+            {isSaving ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              "Save"
+            )}
           </Button>
         </div>
       </div>

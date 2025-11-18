@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Play, Pause, Square, Clock } from 'lucide-react';
+import { Play, Pause, Square, Clock, Loader2 } from 'lucide-react';
 import { useTimeTracking } from '@/src/hooks/useTimeTracking';
 import { format } from 'date-fns';
 import { cn } from '@/src/lib/utils';
@@ -88,8 +88,12 @@ export function TaskTimer({ taskId, taskTitle, listId }: TaskTimerProps) {
     }
   };
 
+  const [isStopping, setIsStopping] = useState(false);
+
   const handleStop = async () => {
-    if (state === 'idle' || !originalStartTimeRef.current) return;
+    if (state === 'idle' || !originalStartTimeRef.current || isStopping) return;
+
+    setIsStopping(true);
 
     const now = new Date();
     let totalDuration = 0;
@@ -110,24 +114,32 @@ export function TaskTimer({ taskId, taskTitle, listId }: TaskTimerProps) {
       const startTime = originalStartTimeRef.current;
       const endTime = new Date(startTime.getTime() + totalDuration * 1000);
 
-      await addTimeEntry({
-        taskId,
-        listId,
-        description: taskTitle,
-        startTime: startTime.toISOString(),
-        endTime: endTime.toISOString(),
-        duration: minutes,
-        date: format(startTime, 'yyyy-MM-dd'),
-      });
-    }
+      try {
+        await addTimeEntry({
+          taskId,
+          listId,
+          description: taskTitle,
+          startTime: startTime.toISOString(),
+          endTime: endTime.toISOString(),
+          duration: minutes,
+          date: format(startTime, 'yyyy-MM-dd'),
+        });
 
-    // Reset timer
-    setState('idle');
-    setElapsedSeconds(0);
-    setTotalPausedSeconds(0);
-    startTimeRef.current = null;
-    originalStartTimeRef.current = null;
-    pauseTimeRef.current = null;
+        // Reset timer
+        setState('idle');
+        setElapsedSeconds(0);
+        setTotalPausedSeconds(0);
+        startTimeRef.current = null;
+        originalStartTimeRef.current = null;
+        pauseTimeRef.current = null;
+      } catch (error) {
+        console.error('Error saving time entry:', error);
+      } finally {
+        setIsStopping(false);
+      }
+    } else {
+      setIsStopping(false);
+    }
   };
 
   const formatTime = (seconds: number): string => {
@@ -174,9 +186,18 @@ export function TaskTimer({ taskId, taskTitle, listId }: TaskTimerProps) {
               <Pause className="h-4 w-4 mr-2" />
               Pause
             </Button>
-            <Button onClick={handleStop} variant="destructive" className="flex-1" size="sm">
-              <Square className="h-4 w-4 mr-2" />
-              Stop
+            <Button onClick={handleStop} variant="destructive" className="flex-1" size="sm" disabled={isStopping}>
+              {isStopping ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Square className="h-4 w-4 mr-2" />
+                  Stop
+                </>
+              )}
             </Button>
           </>
         )}
@@ -187,9 +208,18 @@ export function TaskTimer({ taskId, taskTitle, listId }: TaskTimerProps) {
               <Play className="h-4 w-4 mr-2" />
               Resume
             </Button>
-            <Button onClick={handleStop} variant="destructive" className="flex-1" size="sm">
-              <Square className="h-4 w-4 mr-2" />
-              Stop & Save
+            <Button onClick={handleStop} variant="destructive" className="flex-1" size="sm" disabled={isStopping}>
+              {isStopping ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Square className="h-4 w-4 mr-2" />
+                  Stop & Save
+                </>
+              )}
             </Button>
           </>
         )}
